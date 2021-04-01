@@ -1,73 +1,63 @@
 #include <Arduino.h>
-#include <SD.h>
-#include <SPI.h>
-// #include "SerialBridge.h"
+#include <OSCMessage.h>
+#include <OSCBundle.h>
+#include <Encoder.h>
+#include <RangeEncoder.h>
+#include <OSCBoards.h>
+#include <SlipSerial.h>
 
-class SerialBridgeMessage {
-  public:
-  static const int bufferSize = 1024;
-  char buffer[bufferSize];
-  int bufferPosition = 0;
+RangeEncoder knob(26, 27, 0, 127);
+SLIPSerial slipSerial(Serial);
 
-
-   void fill(char data) {
-     buffer[bufferPosition++] = data;
-   }
-
-   int getType() {
-      return atoi(strtok(buffer, " "));
-   }
-
-   int getStr() {
-      return atoi(strtok(NULL, " "));
-   }
-
-};
-
-void setup () {
-   SerialBridgeMessage test;
-
-  Serial.begin(9600);
-  while (!Serial) {}   
-
-   const char* message = "das 1";
-   for (unsigned int i = 0; i < sizeof(message); i++) {
-     test.fill(message[i]);
-   }
-
-   Serial.println(test.getType());
-   Serial.println(test.getStr());
+void handleWriteFile(OSCMessage &message) {
+  char buffer[50];
+  message.getString(0, buffer, 50);
+  Serial.println(buffer);
 }
 
-void loop() {}
+void handleOscInput(OSCBundle &oscBundleInput) {
+  oscBundleInput.dispatch("/write-file", handleWriteFile);
+}
 
-// void setup() {
-//   Serial.begin(9600);
-//   while (!Serial) {}
+void readKnob() {
+  bool changed;
+  byte value = knob.read(changed);
 
-//   // if (!SD.begin(BUILTIN_SDCARD)) {
-//   //   Serial.println("Failed to initialize SD card!");
-//   // }
+  if (changed) {
+    OSCMessage message("/knob");
+    message.add(value);
 
-//   const char* data = "99 23 yes";
-//   SerialBridgeMessage message;
+    slipSerial.beginPacket();
+    message.send(slipSerial);
+    slipSerial.endPacket();
 
-//   for (unsigned int i = 0; i < sizeof(data) - 1; i++) {
-//     message.fill(data[i]);
-//   }
+    message.empty();
+  }
+}
 
-//   message.parse();
+void readSerial() {
+  OSCBundle oscBundleInput;
 
-//   int type = message.getType();
-//   Serial.printf("Type is %i\n", type);
+  bool receivedOsc = false;
+  if (slipSerial.available()) {
+    while (!slipSerial.endOfPacket()) {
+      while (slipSerial.available()) {
+        receivedOsc = true;
+        oscBundleInput.fill(slipSerial.read());
+      }
+    }
+  }
 
-//   // int number = message.getInt(0);
-//   // Serial.printf("Number is %i\n", number);
+  if (receivedOsc && !oscBundleInput.hasError()) {
+    handleOscInput(oscBundleInput);
+  }  
+}
 
-//   // char* string = message.getStr();
-//   // Serial.printf("Number is %s\n", string);
-// }
+void setup() {
+  slipSerial.begin(9600);
+}
 
-// void loop() {
-//   // bridge.update();
-// }
+void loop() {
+  readSerial();
+  readKnob();
+}
