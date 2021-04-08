@@ -18,7 +18,7 @@ public:
     this->slipSerial = slipSerial;
   }
 
-  char* getLogAddress(LogType type) {
+  const char* getLogAddress(LogType type) {
     switch (type) {
       case LogTypeInfo:
         return "/log/info";
