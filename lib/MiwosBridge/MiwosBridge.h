@@ -2,12 +2,15 @@
 #define MiwosBridge_h
 
 #include <SPI.h>
-#include <SD.h>
+#include <SdFat.h>
 #include <SLIPSerial.h>
 #include <OSCMessage.h>
 #include <OSCBundle.h>
 
 class MiwosBridge {
+public:
+  static const uint16_t fileNameLength = 256;
+  
 private:
   enum ReadSerialMode {
     ReadSerialModeOSC,
@@ -20,19 +23,20 @@ private:
     LogTypeError
   };
 
+  SdFat sd;
   File fileRead;
   File fileWrite;
-
-  static const byte fileNameLength = 50;
-  char fileNameRead[fileNameLength];
-  char fileNameWrite[fileNameLength];
+  char fileWriteName[fileNameLength];
 
   ReadSerialMode readSerialMode = ReadSerialModeOSC;
 
-  void handleOscInput(OSCBundle &oscInput);
+  typedef void (*OscInputHandler)(OSCBundle &oscInput);
+  OscInputHandler oscInputHandler;
 
-  void startWriteFile(OSCMessage &fileMessage);
+  void handleOscInput(OSCBundle &oscInput);
+  void startWriteFile();
   void endWriteFile();
+  void readFile(char* fileName);
 
   const char* getLogAddress(LogType type);
   void log(LogType type, const char* text);
@@ -41,6 +45,8 @@ public:
   SLIPSerial* slipSerial;
 
   MiwosBridge(SLIPSerial *slipSerial);
+  void begin();
+
   void sendMessage(OSCMessage &message);
   void sendRaw();
 
@@ -49,6 +55,10 @@ public:
   void info(const char* text);
   void warning(const char* text);
   void error(const char* text);
+
+  void onOscInput(OscInputHandler handler) {
+    oscInputHandler = handler;
+  }
 };
 
 #endif

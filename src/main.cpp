@@ -1,20 +1,66 @@
 #include <Arduino.h>
 #include <SlipSerial.h>
+#include <OSCMessage.h>
 #include <MiwosBridge.h>
+#include <RangeEncoder.h>
+#include <LuaWrapper.h>
+#include <SdFat.h>
 
 SLIPSerial slipSerial(Serial);
-
 MiwosBridge bridge(&slipSerial);
+RangeEncoder knob(26, 27, 0, 127);
+LuaWrapper lua;
+
+int luaLogInfo(lua_State *L) {
+  const char *text = lua_tostring(L, 1);
+  bridge.info(text);
+  return 0;
+}
+
+void handleOscInput(OSCBundle &oscInput) {
+  oscInput.dispatch("/lua/execute-file", [](OSCMessage &message) {
+    char fileName[MiwosBridge::fileNameLength];
+    message.getString(0, fileName, MiwosBridge::fileNameLength);
+    
+    if (lua.executeFile(fileName)) {
+      OSCMessage message("/success/lua/execute-file");
+      bridge.sendMessage(message);
+    } else {
+      bridge.error("Couldn't execute lua file");
+    }
+  });
+}
+
+void updateKnob() {
+  bool changed;
+  byte value = knob.read(changed);
+  if (changed) {
+    OSCMessage message("/knob");
+    message.add(value);
+    bridge.sendMessage(message);
+  }
+}
 
 void setup() {
+  lua.begin();
+
   slipSerial.begin(9600);
   while (!Serial) {}
+
+  bridge.begin();
+
+  lua.onError([](const char *error) {
+    bridge.error(error);
+  });
+
+  lua.registerFunction("info", luaLogInfo);
+
+  bridge.onOscInput(&handleOscInput);
 }
 
 void loop() {
-  OSCMessage test("/success/arg");
-  bridge.sendMessage(test);
-  delay(1000);
+  bridge.update();
+  updateKnob();
 }
 
 // #include <Arduino.h>

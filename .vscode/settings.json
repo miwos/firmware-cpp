@@ -1,4 +1,5 @@
 {
+  "Lua.diagnostics.disable": ["undefined-global"],
   "files.exclude": {
     "/lib/LuaWrapper/lua": true,
     "**/.git": true,
