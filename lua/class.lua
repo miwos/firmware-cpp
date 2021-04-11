@@ -1,25 +1,22 @@
-local function class(base)
-  local c = {}
+local function class(super)
+  local obj = {}
+  obj.__index = obj
 
   -- Inherit base by making a shallow copy.
-  if type(base) == 'table' then
-    for key,value in pairs(base) do c[key] = value end
-    c._base = base
+  if type(super) == 'table' then
+    for key,value in pairs(super) do obj[key] = value end
+    obj.super = base
   end
 
-  c.__index = c
-  local mt = {}
+  setmetatable(obj, {
+    __call = function (_, ...)
+      local instance = setmetatable({}, obj)
+      if instance.init then instance:init(...) end
+      return instance
+    end
+  })
 
-  -- Expose a constructor which can be called by <classname>(<args>).
-  mt.__call = function(table, ...)
-    local instance = {}
-    setmetatable(instance, c)
-    if table.init then table.init(instance, ...) end
-    return instance
-  end
-
-  setmetatable(c, mt)
-  return c
+  return obj
 end
 
 return class

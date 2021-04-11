@@ -1,13 +1,16 @@
-local class = require('classs')
+-- Disable module cache
+Modules = {}
 
-local MyClass = class()
-function MyClass:init(x)
-  self.x = x
+local Timer = require('timer')
+local Arp = require('arp')
+effect = Arp()
+
+function handleTime(time) Timer:update(time) end
+
+function handleNoteOn(...) 
+  if effect.handleNoteOn ~= nil then effect:handleNoteOn(...) end
 end
 
-function MyClass:test()
-  print(self.x)
+function handleNoteOff(...) 
+  if effect.handleNoteOff ~= nil then effect:handleNoteOff(...) end
 end
-
-local test = MyClass(10)
-test:test()
