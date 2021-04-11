@@ -26,6 +26,7 @@ public:
 
   void registerFunction(const char *name, const lua_CFunction function);
   bool getFunction(const char *name);
+  bool getFunction(const char *table, const char *name);
   void push(lua_Number number);
   void push(const char *string);
   void call(byte argsCount, byte resultsCount);

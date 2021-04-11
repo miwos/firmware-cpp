@@ -53,12 +53,30 @@ void LuaWrapper::registerFunction(const char *name, const lua_CFunction function
 
 bool LuaWrapper::getFunction(const char *name) {
   lua_getglobal(L, name);
-  bool isFunction = lua_isfunction(L, -1);
 
   // TODO add function name to error message.
-  if (!isFunction) error("Can't find global function.");
+  if (!lua_isfunction(L, -1)) {
+    error("Can't find function.");
+    return false;
+  }
 
-  return isFunction;
+  return true;
+}
+
+bool LuaWrapper::getFunction(const char *table, const char *name) {
+  lua_getglobal(L, table);
+  if (!lua_istable(L, -1)) {
+    error("Can't find table");
+    return false;
+  }
+
+  lua_getfield(L, -1, name);
+  if (!lua_isfunction(L, -1)) {
+    error("Can't find function.");
+    return false;
+  }  
+
+  return true;
 }
 
 void LuaWrapper::push(lua_Number number) { lua_pushnumber(L, number); }
