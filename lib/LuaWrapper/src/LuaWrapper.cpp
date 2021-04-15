@@ -5,8 +5,7 @@ StdioStream tempFile;
 const char luaGlobalVariables[] =
 "Modules = {}\n"
 "LuaRoot = 'lua/'\n"
-"Debug = false\n"
-"function test ()\n print('TEST')\n end\n";
+"Debug = false\n";
 
 const char luaRequire[] = 
 "function require(moduleName)\n"
@@ -20,6 +19,10 @@ const char luaRequire[] =
 "  return Modules[moduleName]\n"
 "end\n";
 
+LuaWrapper::LuaWrapper(Stream* serial) {
+  this->serial = serial;
+}
+
 int LuaWrapper::luaLoadModule() {
   const char* fileName = lua_tostring(L, 1);
   check(luaL_loadfile(L, fileName));
@@ -27,16 +30,22 @@ int LuaWrapper::luaLoadModule() {
   return 1;
 }
 
+void LuaWrapper::errorBegin() {
+  if (handleErrorBegin != NULL) handleErrorBegin();
+}
+
+void LuaWrapper::errorEnd() {
+  if (handleErrorEnd != NULL) handleErrorEnd();
+}
+
 bool LuaWrapper::check(int luaHasError) {
   if (luaHasError) {
-    error(lua_tostring(L, -1));
+    errorBegin();
+    serial->print(lua_tostring(L, -1));
+    errorEnd();
     lua_pop(L, 1);
   }
   return luaHasError ? false : true;
-}
-
-void LuaWrapper::error(const char *text) {
-  if (handleError != NULL) handleError(text);
 }
 
 bool LuaWrapper::execute(const char *string) {
@@ -51,30 +60,52 @@ void LuaWrapper::registerFunction(const char *name, const lua_CFunction function
   lua_register(L, name, function);
 }
 
-bool LuaWrapper::getFunction(const char *name) {
+void LuaWrapper::registerLibrary(const char *name, const luaL_reg library[]) {
+  luaL_register_light(L, name, library);
+}
+
+bool LuaWrapper::getFunction(const char *name, bool logError) {
   lua_getglobal(L, name);
 
-  // TODO add function name to error message.
-  if (!lua_isfunction(L, -1)) {
-    error("Can't find function.");
+  if (lua_isfunction(L, -1)) {
+    if (logError) {
+      errorBegin();
+      serial->printf(F("Can't find function `%s`."), name);
+      errorEnd();
+    }
     return false;
   }
 
-  return true;
+  return true;  
 }
 
-bool LuaWrapper::getFunction(const char *table, const char *name) {
+bool LuaWrapper::getFunction(const char *name) {
+  return getFunction(name, false);
+}
+
+bool LuaWrapper::getFunction(const char *table, const char *name, bool logError) {
   lua_getglobal(L, table);
   if (!lua_istable(L, -1)) {
-    error("Can't find table");
+    if (logError) {
+      errorBegin();
+      serial->printf(F("Can't find table `%s`."), table);
+      errorEnd();
+    }
     return false;
   }
 
   lua_getfield(L, -1, name);
+  // Important: remove table from stack again.
+  lua_remove(L, -2);
+
   if (!lua_isfunction(L, -1)) {
-    error("Can't find function.");
+    if (logError) {
+      errorBegin();
+      serial->printf(F("Can't find function `%s`."), table);
+      errorEnd();
+    }
     return false;
-  }  
+  }
 
   return true;
 }
@@ -85,13 +116,7 @@ void LuaWrapper::push(const char *string) { lua_pushstring(L, string); }
 
 void LuaWrapper::call(byte argsCount = 0, byte resultsCount = 0) {
   check(lua_pcall(L, argsCount, resultsCount, 0));
-  // if (lua_pcall(L, argsCount, resultsCount, 0) != 0) {
-  //   error("error running function");
-  // }
-
-  // lua_call(L, argsCount, resultsCount);
 }
-
 
 void LuaWrapper::begin() {
   // Enable printf/sprintf to print floats for Teensy.

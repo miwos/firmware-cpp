@@ -2,6 +2,18 @@ local Timer = require('timer')
 
 local Miwos = {}
 
+function Miwos:update(time)
+  Timer:update(time)
+end
+
+function Miwos:sendNoteOn(note)
+  sendNoteOff(unpack(note))
+end
+
+function Miwos:sendNoteOff(note)
+  sendNoteOn(unpack(note))
+end
+
 function Miwos:sendNote(note, duration)
   self.sendNoteOn(note)
   Timer:schedule(getTime() + duration, function ()
@@ -9,16 +21,13 @@ function Miwos:sendNote(note, duration)
   end)
 end
 
-function Miwos:sendNoteOn(note)
-  teensy.sendNoteOff(unpack(note))
+function Miwos:handleNoteOn(note, velocity, channel)
+  self:sendNoteOn({ note -12, velocity, channel })
+  info(collectgarbage('count'))
 end
 
-function Miwos:sendNoteOff(note)
-  teensy.sendNoteOn(unpack(note))
-end
-
-function Miwos:_handleNoteOn()
-  info('handle note on')
+function Miwos:handleNoteOff(note, velocity, channel)
+  self:sendNoteOff({ note - 12, velocity, channel })
 end
 
 return Miwos

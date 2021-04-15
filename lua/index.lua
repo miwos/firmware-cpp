@@ -1,16 +1,16 @@
--- Disable module cache
-Modules = {}
+-- Miwos.sendNoteOn(60, 127, 1)
+-- Miwos.sendNoteOff(60, 127, 1)
+collectgarbage('collect')
+print(collectgarbage("count"))
 
-local Timer = require('timer')
-local Arp = require('arp')
-effect = Arp()
+-- local Timer = require('timer')
 
-function handleTime(time) Timer:update(time) end
+-- Miwos = {}
 
-function handleNoteOn(...) 
-  if effect.handleNoteOn ~= nil then effect:handleNoteOn(...) end
-end
+-- -- collectgarbage("collect")
 
-function handleNoteOff(...) 
-  if effect.handleNoteOff ~= nil then effect:handleNoteOff(...) end
-end
+-- function Miwos.update(time)
+--   if (time % 1000 == 0) then
+--     print(string.format('Memory usage: %dkb', collectgarbage('count')))
+--   end
+-- end

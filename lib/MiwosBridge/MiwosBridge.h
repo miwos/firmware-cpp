@@ -55,6 +55,8 @@ public:
   void info(const char* text);
   void warning(const char* text);
   void error(const char* text);
+  void rawErrorBegin();
+  void rawErrorEnd();
 
   void onOscInput(OscInputHandler handler) {
     oscInputHandler = handler;

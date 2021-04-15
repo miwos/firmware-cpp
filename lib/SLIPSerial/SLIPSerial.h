@@ -5,13 +5,14 @@
 #include <Stream.h>
 #include <usb_serial.h>
 
-class SLIPSerial: public Stream{
+class SLIPSerial: public Stream {
 private:
 	enum erstate { CHAR, FIRSTEOT, SECONDEOT, SLIPESC } rstate;
   usb_serial_class *serial;
 	
 public:
 	SLIPSerial(usb_serial_class&);
+	operator bool() const { return *serial; }
 	int available();
 	int read();
   int readBytes( uint8_t *buffer, size_t size);

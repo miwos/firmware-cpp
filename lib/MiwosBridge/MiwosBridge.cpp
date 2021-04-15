@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "MiwosBridge.h"
 
 MiwosBridge::MiwosBridge(SLIPSerial *slipSerial) {
@@ -156,4 +157,14 @@ void MiwosBridge::warning(const char* text) {
  */
 void MiwosBridge::error(const char* text) {
   log(LogTypeError, text);
+}
+
+void MiwosBridge::rawErrorBegin() {
+  OSCMessage message("/log/raw/error");
+  sendMessage(message);
+  slipSerial->beginPacket();
+}
+
+void MiwosBridge::rawErrorEnd() {
+  slipSerial->endPacket();
 }
