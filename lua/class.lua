@@ -5,7 +5,7 @@ local function class(super)
   -- Inherit base by making a shallow copy.
   if type(super) == 'table' then
     for key,value in pairs(super) do obj[key] = value end
-    obj.super = base
+    obj.super = super
   end
 
   setmetatable(obj, {

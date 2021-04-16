@@ -38,7 +38,7 @@ public:
   void error(const char *text);
   void onErrorBegin(Callback handler) { handleErrorBegin = handler; }
   void onErrorEnd(Callback handler) { handleErrorEnd = handler; }
-  
+
 private:
   int luaLoadModule();
   void errorBegin();

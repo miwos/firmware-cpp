@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include <Miwos.h>
 
-uint32_t currentTime = 0;
-
 void setup() {
   Miwos::begin();
 }

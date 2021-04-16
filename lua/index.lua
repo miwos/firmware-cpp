@@ -1,16 +1,8 @@
--- Miwos.sendNoteOn(60, 127, 1)
--- Miwos.sendNoteOff(60, 127, 1)
-collectgarbage('collect')
-print(collectgarbage("count"))
+Miwos = require('miwos')
+Midi = require('midi')
 
--- local Timer = require('timer')
+local Chorder = require('chorder')
 
--- Miwos = {}
-
--- -- collectgarbage("collect")
-
--- function Miwos.update(time)
---   if (time % 1000 == 0) then
---     print(string.format('Memory usage: %dkb', collectgarbage('count')))
---   end
--- end
+local chorder = Chorder()
+Miwos:connect(1, chorder, 1)
+chorder:connect(1, Miwos, 1)
