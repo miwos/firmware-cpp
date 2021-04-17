@@ -1,6 +1,32 @@
 #include "Miwos.h"
 
-namespace Miwos { namespace LuaLib {
+namespace Miwos {
+  SLIPSerial slipSerial(Serial);
+  LuaWrapper lua(&slipSerial);
+  MiwosBridge bridge(&slipSerial);
+  uint32_t currentTime = 0;
+}
+
+namespace Miwos { namespace LuaUtils {
+  int warning(lua_State *L) {
+    const char* text = lua_tostring(L, 1);
+    bridge.warning(text);
+    return 0;    
+  }
+
+  int info(lua_State *L) {
+    const char* text = lua_tostring(L, 1);
+    bridge.info(text);
+    return 0;    
+  }
+
+  int getTime(lua_State *L) {
+    lua.push(currentTime);
+    return 1;
+  }
+}}
+
+namespace Miwos { namespace TeensyInterface {
   int sendNoteOn(lua_State *L) {
     byte note = lua_tonumber(L, 1);
     byte velocity = lua_tonumber(L, 2);
@@ -25,12 +51,6 @@ namespace Miwos { namespace LuaLib {
 }};
 
 namespace Miwos {
-  SLIPSerial slipSerial(Serial);
-  LuaWrapper lua(&slipSerial);
-  MiwosBridge bridge(&slipSerial);
-
-  uint32_t currentTime = 0;
-
   void handleOscInput(OSCBundle &oscInput) {
     oscInput.dispatch("/lua/execute-file", [](OSCMessage &message) {
       char fileName[MiwosBridge::fileNameLength];
@@ -55,18 +75,20 @@ namespace Miwos {
     lua.onErrorBegin([]() { bridge.rawErrorBegin(); });
     lua.onErrorEnd([]() { bridge.rawErrorEnd(); });
     lua.begin();
-    lua.registerLibrary("Miwos", LuaLib::library);
 
-    usbMIDI.setHandleNoteOn([](byte note, byte velocity, byte channel) {
-      LuaInterface::handleNoteOn(note, velocity, channel);
-    });
-    usbMIDI.setHandleNoteOff([](byte note, byte velocity, byte channel) {
-      LuaInterface::handleNoteOff(note, velocity, channel);
-    });
+    lua.registerLibrary("Teensy", TeensyInterface::library);
+    lua.registerFunction("warning", LuaUtils::warning);
+    lua.registerFunction("info", LuaUtils::info);
+    lua.registerFunction("getTime", LuaUtils::getTime);
+
+    usbMIDI.setHandleNoteOn(&LuaInterface::handleNoteOn);
+    usbMIDI.setHandleNoteOff(&LuaInterface::handleNoteOff);
   }
 
   void update() {
     bridge.update();
+    usbMIDI.read();
+
     uint32_t newTime = millis();
     if (currentTime != newTime) {
       currentTime = newTime;
@@ -84,7 +106,7 @@ namespace Miwos { namespace LuaInterface {
     lua.call(1, 0);
   }
 
-  void handleNoteOn(byte note, byte velocity, byte channel) {
+  void handleNoteOn(byte channel, byte note, byte velocity) {
     if (!lua.getFunction("Miwos", "handleNoteOn")) return;
     lua.push(note);
     lua.push(velocity);
@@ -92,7 +114,7 @@ namespace Miwos { namespace LuaInterface {
     lua.call(3, 0);
   }
 
-  void handleNoteOff(byte note, byte velocity, byte channel) {
+  void handleNoteOff(byte channel, byte note, byte velocity) {
     if (!lua.getFunction("Miwos", "handleNoteOff")) return;
     lua.push(note);
     lua.push(velocity);

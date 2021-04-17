@@ -81,7 +81,7 @@ bool LuaWrapper::getFunction(const char *name, bool logError) {
 }
 
 bool LuaWrapper::getFunction(const char *name) {
-  return getFunction(name, false);
+  return getFunction(name, true);
 }
 
 bool LuaWrapper::getFunction(const char *table, const char *name, bool logError) {
@@ -103,7 +103,7 @@ bool LuaWrapper::getFunction(const char *table, const char *name, bool logError)
   if (!lua_isfunction(L, -1)) {
     if (logError) {
       errorBegin();
-      serial->printf(F("Can't find function `%s`."), table);
+      serial->printf(F("Can't find function `%s`."), name);
       errorEnd();
     }
     lua_pop(L, 1);
@@ -111,6 +111,10 @@ bool LuaWrapper::getFunction(const char *table, const char *name, bool logError)
   }
 
   return true;
+}
+
+bool LuaWrapper::getFunction(const char *table, const char *name) {
+  return getFunction(table, name, true);
 }
 
 void LuaWrapper::push(lua_Number number) { lua_pushnumber(L, number); }

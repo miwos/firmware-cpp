@@ -21,6 +21,7 @@ namespace Miwos {
   void begin();
   void update();
   void updateTime();
+  void handleNoteOn(byte note, byte velocity, byte channel);
 };
 
 

@@ -9,9 +9,10 @@ local function class(super)
   end
 
   setmetatable(obj, {
-    __call = function (_, ...)
+    __call = function (table, ...)
       local instance = setmetatable({}, obj)
-      if instance.init then instance:init(...) end
+      if super.init then super.init(instance, ...) end
+      if table.init then table.init(instance, ...) end
       return instance
     end
   })
