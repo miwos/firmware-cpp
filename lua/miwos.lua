@@ -15,7 +15,7 @@ function MiwosOutput:input(index, message)
 
   local action = actions[message.type]
   if action then
-    -- Increase index by one, because we use zero-based index in c++.
+    -- Decrease index, because we use zero-based index in c++.
     action(index - 1, unpack(message.payload))
   end
 end
@@ -34,12 +34,12 @@ function Miwos.update(time)
   Timer:update(time)
 end
 
-function Miwos.handleNoteOn(...)
-  Miwos.input:output(1, Midi.NoteOn(...))
+function Miwos.handleNoteOn(input, ...)
+  Miwos.input:output(input + 1, Midi.NoteOn(...))
 end
 
-function Miwos.handleNoteOff(...)
-  Miwos.input:output(1, Midi.NoteOff(...))
+function Miwos.handleNoteOff(input, ...)
+  Miwos.input:output(input + 1, Midi.NoteOff(...))
 end
 
 return Miwos

@@ -14,8 +14,8 @@ namespace Miwos { namespace LuaLib {
 
 namespace Miwos { namespace LuaInterface {
   void update(uint32_t currentTime);
-  void handleNoteOn(byte note, byte velocity, byte channel);
-  void handleNoteOff(byte note, byte velocity, byte channel);
+  void handleNoteOn(byte input, byte note, byte velocity, byte channel);
+  void handleNoteOff(byte input, byte note, byte velocity, byte channel);
 }};
 
 namespace Miwos {

@@ -159,12 +159,12 @@ void MiwosBridge::error(const char* text) {
   log(LogTypeError, text);
 }
 
-void MiwosBridge::rawErrorBegin() {
+void MiwosBridge::errorBegin() {
   OSCMessage message("/log/raw/error");
   sendMessage(message);
   slipSerial->beginPacket();
 }
 
-void MiwosBridge::rawErrorEnd() {
+void MiwosBridge::errorEnd() {
   slipSerial->endPacket();
 }

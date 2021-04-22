@@ -4,7 +4,19 @@
 #include "MidiWrapper.h"
 
 class MidiWrapperUsb : public MidiWrapper {
-public: 
+public:
+  inline MidiWrapperUsb() {
+    static MidiWrapper* self = this;
+
+    usbMIDI.setHandleNoteOn([](byte channel, byte note, byte velocity) {
+      if (self->noteOnHandler != NULL) self->noteOnHandler(note, velocity, channel);
+    });
+
+    usbMIDI.setHandleNoteOff([](byte channel, byte note, byte velocity) {
+      if (self->noteOnHandler != NULL) self->noteOffHandler(note, velocity, channel);
+    });
+  }
+
   void inline sendNoteOn(byte note, byte velocity, byte channel) {
     usbMIDI.sendNoteOn(note, velocity, channel);
   }

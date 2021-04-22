@@ -8,12 +8,15 @@ namespace Miwos {
   MiwosBridge bridge(&slipSerial);
   uint32_t currentTime = 0;
 
-  MidiWrapper *midiDevices[1] = { &midi1 };
+  const byte midiDevicesCount = 1;
+  MidiWrapper *midiDevices[midiDevicesCount] = { &midi1 };
   MidiWrapper* getDevice(byte index) {
-    if (midiDevices[index] == NULL) {
-      bridge.rawErrorBegin();
-      Serial.printf(F("Midi device #%s doesn't exist."), index);
-      bridge.rawErrorEnd();
+    if (index >= midiDevicesCount) {
+      bridge.errorBegin();
+      // Increase the index to be consistent with lua's index.
+      Serial.printf(F("Midi device #%d doesn't exist."), index + 1);
+      bridge.errorEnd();
+      return NULL;
     }
     return midiDevices[index];
   }
@@ -105,8 +108,8 @@ namespace Miwos {
     bridge.begin();
     bridge.onOscInput(&handleOscInput);
 
-    lua.onErrorBegin([]() { bridge.rawErrorBegin(); });
-    lua.onErrorEnd([]() { bridge.rawErrorEnd(); });
+    lua.onErrorBegin([]() { bridge.errorBegin(); });
+    lua.onErrorEnd([]() { bridge.errorEnd(); });
     lua.begin();
 
     lua.registerLibrary("Teensy", TeensyInterface::library);
@@ -114,8 +117,13 @@ namespace Miwos {
     lua.registerFunction("info", LuaUtils::info);
     lua.registerFunction("getTime", LuaUtils::getTime);
 
-    usbMIDI.setHandleNoteOn(&LuaInterface::handleNoteOn);
-    usbMIDI.setHandleNoteOff(&LuaInterface::handleNoteOff);
+    midiDevices[0]->onNoteOn([](byte note, byte velocity, byte channel) {
+      LuaInterface::handleNoteOn(0, note, velocity, channel);
+    });
+
+    midiDevices[0]->onNoteOff([](byte note, byte velocity, byte channel) {
+      LuaInterface::handleNoteOff(0, note, velocity, channel);
+    });
   }
 
   void update() {
@@ -139,19 +147,21 @@ namespace Miwos { namespace LuaInterface {
     lua.call(1, 0);
   }
 
-  void handleNoteOn(byte channel, byte note, byte velocity) {
+  void handleNoteOn(byte input, byte note, byte velocity, byte channel) {
     if (!lua.getFunction("Miwos", "handleNoteOn")) return;
+    lua.push(input);
     lua.push(note);
     lua.push(velocity);
     lua.push(channel);
-    lua.call(3, 0);
+    lua.call(4, 0);
   }
 
-  void handleNoteOff(byte channel, byte note, byte velocity) {
+  void handleNoteOff(byte input, byte note, byte velocity, byte channel) {
     if (!lua.getFunction("Miwos", "handleNoteOff")) return;
+    lua.push(input);
     lua.push(note);
     lua.push(velocity);
     lua.push(channel);
-    lua.call(3, 0);
+    lua.call(4, 0);
   }  
 }}
