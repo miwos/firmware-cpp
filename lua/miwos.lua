@@ -6,7 +6,7 @@ local Timer = require('timer')
 local MiwosInput = class(Module)
 local MiwosOutput = class(Module)
 
-function MiwosOutput:input(_, message)
+function MiwosOutput:input(index, message)
   local actions = {
     [Midi.TypeNoteOn] = Teensy.sendNoteOn,
     [Midi.TypeNoteOff] = Teensy.sendNoteOff,
@@ -15,7 +15,8 @@ function MiwosOutput:input(_, message)
 
   local action = actions[message.type]
   if action then
-    action(unpack(message.payload))
+    -- Increase index by one, because we use zero-based index in c++.
+    action(index - 1, unpack(message.payload))
   end
 end
 

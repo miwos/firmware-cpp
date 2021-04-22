@@ -1,10 +1,22 @@
 #include "Miwos.h"
 
+MidiWrapperUsb midi1;
+
 namespace Miwos {
   SLIPSerial slipSerial(Serial);
   LuaWrapper lua(&slipSerial);
   MiwosBridge bridge(&slipSerial);
   uint32_t currentTime = 0;
+
+  MidiWrapper *midiDevices[1] = { &midi1 };
+  MidiWrapper* getDevice(byte index) {
+    if (midiDevices[index] == NULL) {
+      bridge.rawErrorBegin();
+      Serial.printf(F("Midi device #%s doesn't exist."), index);
+      bridge.rawErrorEnd();
+    }
+    return midiDevices[index];
+  }
 }
 
 namespace Miwos { namespace LuaUtils {
@@ -28,26 +40,38 @@ namespace Miwos { namespace LuaUtils {
 
 namespace Miwos { namespace TeensyInterface {
   int sendNoteOn(lua_State *L) {
-    byte note = lua_tonumber(L, 1);
-    byte velocity = lua_tonumber(L, 2);
-    byte channel = lua_tonumber(L, 1);
-    usbMIDI.sendNoteOn(note, velocity, channel);
+    byte deviceIndex = lua_tonumber(L, 1);
+    byte note = lua_tonumber(L, 2);
+    byte velocity = lua_tonumber(L, 3);
+    byte channel = lua_tonumber(L, 4);
+    
+    MidiWrapper* device = getDevice(deviceIndex);
+    if (device != NULL) device->sendNoteOn(note, velocity, channel);
+
     return 0;
   }
 
   int sendNoteOff(lua_State *L) {
-    byte note = lua_tonumber(L, 1);
-    byte velocity = lua_tonumber(L, 2);
-    byte channel = lua_tonumber(L, 1);
-    usbMIDI.sendNoteOff(note, velocity, channel);
+    byte deviceIndex = lua_tonumber(L, 1);
+    byte note = lua_tonumber(L, 2);
+    byte velocity = lua_tonumber(L, 3);
+    byte channel = lua_tonumber(L, 4);
+
+    MidiWrapper* device = getDevice(deviceIndex);
+    if (device != NULL) device->sendNoteOff(note, velocity, channel);
+
     return 0;
   }
 
   int sendControlChange(lua_State *L) {
-    byte control = lua_tonumber(L, 1);
-    byte value = lua_tonumber(L, 2);
-    byte channel = lua_tonumber(L, 3);
-    usbMIDI.sendControlChange(control, value, channel);
+    byte deviceIndex = lua_tonumber(L, 1);
+    byte control = lua_tonumber(L, 2);
+    byte value = lua_tonumber(L, 3);
+    byte channel = lua_tonumber(L, 4);
+
+    MidiWrapper* device = getDevice(deviceIndex);
+    if (device != NULL ) device->sendControlChange(control, value, channel);
+
     return 0;
   }
 

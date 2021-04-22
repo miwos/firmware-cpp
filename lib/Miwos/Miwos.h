@@ -4,6 +4,8 @@
 #include <SlipSerial.h>
 #include <MiwosBridge.h>
 #include <LuaWrapper.h>
+#include <MidiWrapper.h>
+#include <MidiWrapperUsb.h>
 
 namespace Miwos { namespace LuaLib {
   int sendNoteOn(lua_State *L);
@@ -17,10 +19,13 @@ namespace Miwos { namespace LuaInterface {
 }};
 
 namespace Miwos {
-  void handleOscInput(OSCBundle &oscInput);
   void begin();
   void update();
   void updateTime();
+  
+  MidiWrapper* getDevice(byte index);
+
+  void handleOscInput(OSCBundle &oscInput);
   void handleNoteOn(byte note, byte velocity, byte channel);
 };
 
