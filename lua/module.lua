@@ -3,7 +3,8 @@ local Module = {}
 
 local midiTypeNames = {
   'noteOn',
-  'noteOff'
+  'noteOff',
+  'controlChange'
 }
 
 function Module:init()
@@ -35,7 +36,6 @@ function Module:output(index, message)
   -- Call a midi-type agnostic function like `input1()`.
   local numberedInput = 'input' .. input
   utils.callIfExists(module[numberedInput], { module, message })
-  info(numberedInput)
 
   -- Call a midi-type aware function like `input1_noteOn()`.
   local midiType =  midiTypeNames[message.type]

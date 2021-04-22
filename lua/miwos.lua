@@ -9,7 +9,8 @@ local MiwosOutput = class(Module)
 function MiwosOutput:input(_, message)
   local actions = {
     [Midi.TypeNoteOn] = Teensy.sendNoteOn,
-    [Midi.TypeNoteOff] = Teensy.sendNoteOff
+    [Midi.TypeNoteOff] = Teensy.sendNoteOff,
+    [Midi.TypeControlChange] = Teensy.sendControlChange
   }
 
   local action = actions[message.type]

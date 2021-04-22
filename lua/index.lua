@@ -2,14 +2,10 @@ Modules = {}
 Miwos = require('miwos')
 Midi = require('midi')
 
-local Hold = require('hold')
-local hold = Hold()
+local bassPitch = require('BassPitch')()
 
-local chorder = require('chorder')()
-
-Miwos.input:connect(1, hold, 1)
-hold:connect(1, chorder, 1)
-chorder:connect(1, Miwos.output, 1)
+Miwos.input:connect(1, bassPitch, 1)
+bassPitch:connect(1, Miwos.output, 1)
 
 -- hold:connect(1, chorder, 1)
 -- chorder:connect(1, Miwos.output, 1)

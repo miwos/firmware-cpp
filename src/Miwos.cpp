@@ -43,9 +43,18 @@ namespace Miwos { namespace TeensyInterface {
     return 0;
   }
 
+  int sendControlChange(lua_State *L) {
+    byte control = lua_tonumber(L, 1);
+    byte value = lua_tonumber(L, 2);
+    byte channel = lua_tonumber(L, 3);
+    usbMIDI.sendControlChange(control, value, channel);
+    return 0;
+  }
+
   const luaL_reg library[] = {
     { "sendNoteOn", sendNoteOn },
     { "sendNoteOff", sendNoteOff },
+    { "sendControlChange", sendControlChange },
     { NULL, NULL }
   };
 }};
