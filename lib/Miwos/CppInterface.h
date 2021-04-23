@@ -1,11 +1,11 @@
-#ifndef TeensyInterface_h
-#define TeensyInterface_h
+#ifndef CppInterface_h
+#define CppInterface_h
 
 #include <LuaWrapper.h>
 #include <MiwosBridge.h>
 #include "Devices.h"
 
-namespace TeensyInterface {
+namespace CppInterface {
   LuaWrapper *lua;
   MiwosBridge *bridge;
 
@@ -67,8 +67,8 @@ namespace TeensyInterface {
   }
 
   void begin(LuaWrapper *lua, MiwosBridge *bridge) {
-    TeensyInterface::lua = lua;
-    TeensyInterface::bridge = bridge;
+    CppInterface::lua = lua;
+    CppInterface::bridge = bridge;
 
     const luaL_reg teensyLibrary[] = {
       { "sendNoteOn", Teensy::sendNoteOn },

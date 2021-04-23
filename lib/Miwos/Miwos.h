@@ -7,7 +7,7 @@
 #include <MidiWrapper.h>
 #include <MidiWrapperUsb.h>
 
-#include "TeensyInterface.h"
+#include "CppInterface.h"
 #include "LuaInterface.h"
 #include "Devices.h"
 
@@ -43,7 +43,7 @@ namespace Miwos {
     lua.begin();
 
     Devices::begin();
-    TeensyInterface::begin(&lua, &bridge);
+    CppInterface::begin(&lua, &bridge);
     LuaInterface::begin(&lua);
   }
 

@@ -11,10 +11,13 @@ MidiWrapperUsb midi1;
 
 namespace Devices {
   MiwosBridge* bridge;
-  
+
   const byte maxDevices = 1;
   MidiWrapper *devices[maxDevices] = { &midi1 };
 
+  /**
+   * Get a midi device.
+   */
   MidiWrapper* getDevice(byte index) {
     if (index >= maxDevices) {
       bridge->errorBegin();
@@ -26,6 +29,9 @@ namespace Devices {
     return devices[index];
   }
 
+  /**
+   * Register all midi devices.
+   */
   void begin() {
     for (byte i = 0; i < maxDevices; i++) {
       devices[i]->onNoteOn([](byte note, byte velocity, byte channel) {
