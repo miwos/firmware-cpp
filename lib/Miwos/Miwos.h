@@ -6,27 +6,14 @@
 #include <LuaWrapper.h>
 #include <MidiWrapper.h>
 #include <MidiWrapperUsb.h>
-
-MidiWrapperUsb midi1;
+#include "TeensyInterface.h"
+#include "Devices.h"
 
 namespace Miwos {
   SLIPSerial slipSerial(Serial);
   LuaWrapper lua(&slipSerial);
   MiwosBridge bridge(&slipSerial);
   uint32_t currentTime = 0;
-
-  const byte midiDevicesCount = 1;
-  MidiWrapper *midiDevices[midiDevicesCount] = { &midi1 };
-  MidiWrapper* getDevice(byte index) {
-    if (index >= midiDevicesCount) {
-      bridge.errorBegin();
-      // Increase the index to be consistent with lua's index.
-      Serial.printf(F("Midi device #%d doesn't exist."), index + 1);
-      bridge.errorEnd();
-      return NULL;
-    }
-    return midiDevices[index];
-  }
 }
 
 namespace Miwos { namespace LuaUtils {
@@ -47,52 +34,6 @@ namespace Miwos { namespace LuaUtils {
     return 1;
   }
 }}
-
-namespace Miwos { namespace TeensyInterface {
-  int sendNoteOn(lua_State *L) {
-    byte deviceIndex = lua_tonumber(L, 1);
-    byte note = lua_tonumber(L, 2);
-    byte velocity = lua_tonumber(L, 3);
-    byte channel = lua_tonumber(L, 4);
-    
-    MidiWrapper* device = getDevice(deviceIndex);
-    if (device != NULL) device->sendNoteOn(note, velocity, channel);
-
-    return 0;
-  }
-
-  int sendNoteOff(lua_State *L) {
-    byte deviceIndex = lua_tonumber(L, 1);
-    byte note = lua_tonumber(L, 2);
-    byte velocity = lua_tonumber(L, 3);
-    byte channel = lua_tonumber(L, 4);
-
-    MidiWrapper* device = getDevice(deviceIndex);
-    if (device != NULL) device->sendNoteOff(note, velocity, channel);
-
-    return 0;
-  }
-
-  int sendControlChange(lua_State *L) {
-    byte deviceIndex = lua_tonumber(L, 1);
-    byte control = lua_tonumber(L, 2);
-    byte value = lua_tonumber(L, 3);
-    byte channel = lua_tonumber(L, 4);
-
-    MidiWrapper* device = getDevice(deviceIndex);
-    if (device != NULL ) device->sendControlChange(control, value, channel);
-
-    return 0;
-  }
-
-  const luaL_reg library[] = {
-    { "sendNoteOn", sendNoteOn },
-    { "sendNoteOff", sendNoteOff },
-    { "sendControlChange", sendControlChange },
-    { NULL, NULL }
-  };
-}};
-
 
 namespace Miwos { namespace LuaInterface {
   void update(uint32_t currentTime) {
@@ -146,18 +87,13 @@ namespace Miwos {
     lua.onErrorEnd([]() { bridge.errorEnd(); });
     lua.begin();
 
-    lua.registerLibrary("Teensy", TeensyInterface::library);
+    Devices::begin();
+    TeensyInterface::begin(&lua);
+
+    // lua.registerLibrary("Teensy", TeensyInterface::library);
     lua.registerFunction("warning", LuaUtils::warning);
     lua.registerFunction("info", LuaUtils::info);
     lua.registerFunction("getTime", LuaUtils::getTime);
-
-    midiDevices[0]->onNoteOn([](byte note, byte velocity, byte channel) {
-      LuaInterface::handleNoteOn(0, note, velocity, channel);
-    });
-
-    midiDevices[0]->onNoteOff([](byte note, byte velocity, byte channel) {
-      LuaInterface::handleNoteOff(0, note, velocity, channel);
-    });
   }
 
   void update() {
