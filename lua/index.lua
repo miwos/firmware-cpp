@@ -2,10 +2,7 @@ Modules = {}
 Miwos = require('miwos')
 Midi = require('midi')
 
--- Miwos.input:connect(1, Miwos.output, 2)
-
-info('jau@@@')
-
+Miwos.input:connect(1, Miwos.output, 1)
 
 -- local bassPitch = require('BassPitch')()
 

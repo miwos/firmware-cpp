@@ -6,7 +6,9 @@
 #include <LuaWrapper.h>
 #include <MidiWrapper.h>
 #include <MidiWrapperUsb.h>
+
 #include "TeensyInterface.h"
+#include "LuaInterface.h"
 #include "Devices.h"
 
 namespace Miwos {
@@ -14,54 +16,7 @@ namespace Miwos {
   LuaWrapper lua(&slipSerial);
   MiwosBridge bridge(&slipSerial);
   uint32_t currentTime = 0;
-}
 
-namespace Miwos { namespace LuaUtils {
-  int warning(lua_State *L) {
-    const char* text = lua_tostring(L, 1);
-    bridge.warning(text);
-    return 0;    
-  }
-
-  int info(lua_State *L) {
-    const char* text = lua_tostring(L, 1);
-    bridge.info(text);
-    return 0;    
-  }
-
-  int getTime(lua_State *L) {
-    lua.push(currentTime);
-    return 1;
-  }
-}}
-
-namespace Miwos { namespace LuaInterface {
-  void update(uint32_t currentTime) {
-    if (!lua.getFunction("Miwos", "update", false)) return;
-    lua.push(currentTime);
-    lua.call(1, 0);
-  }
-
-  void handleNoteOn(byte input, byte note, byte velocity, byte channel) {
-    if (!lua.getFunction("Miwos", "handleNoteOn")) return;
-    lua.push(input);
-    lua.push(note);
-    lua.push(velocity);
-    lua.push(channel);
-    lua.call(4, 0);
-  }
-
-  void handleNoteOff(byte input, byte note, byte velocity, byte channel) {
-    if (!lua.getFunction("Miwos", "handleNoteOff")) return;
-    lua.push(input);
-    lua.push(note);
-    lua.push(velocity);
-    lua.push(channel);
-    lua.call(4, 0);
-  }  
-}}
-
-namespace Miwos {
   void handleOscInput(OSCBundle &oscInput) {
     oscInput.dispatch("/lua/execute-file", [](OSCMessage &message) {
       char fileName[MiwosBridge::fileNameLength];
@@ -88,12 +43,8 @@ namespace Miwos {
     lua.begin();
 
     Devices::begin();
-    TeensyInterface::begin(&lua);
-
-    // lua.registerLibrary("Teensy", TeensyInterface::library);
-    lua.registerFunction("warning", LuaUtils::warning);
-    lua.registerFunction("info", LuaUtils::info);
-    lua.registerFunction("getTime", LuaUtils::getTime);
+    TeensyInterface::begin(&lua, &bridge);
+    LuaInterface::begin(&lua);
   }
 
   void update() {
@@ -103,7 +54,7 @@ namespace Miwos {
     uint32_t newTime = millis();
     if (currentTime != newTime) {
       currentTime = newTime;
-      if (currentTime % 100 == 0) {
+      if (currentTime % 1000 == 0) {
         LuaInterface::update(currentTime);
       }
     }
