@@ -1,8 +1,14 @@
 Modules = {}
-Miwos = require('miwos')
-Midi = require('midi')
+require('timer')
 
-Miwos.input:connect(1, Miwos.output, 1)
+-- Miwos = require('miwos')
+-- Midi = require('midi')
+
+Timer.schedule(Teensy.getTime() + 1000, function ()
+  Log.info('oho!')
+end)
+
+-- Miwos.input:connect(1, Miwos.output, 1)
 
 -- local bassPitch = require('BassPitch')()
 

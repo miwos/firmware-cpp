@@ -12,7 +12,7 @@ namespace CppInterface {
 
   namespace Display {
     int write(lua_State *L) {
-      byte index = lua_tonumber(L, 1);
+      /*byte index = */lua_tonumber(L, 1);
       const char* text = lua_tostring(L, 2);
 
       Displays::display.clearDisplay();

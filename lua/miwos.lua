@@ -34,6 +34,10 @@ function Miwos.update(time)
   Timer:update(time)
 end
 
+function Miwos.handleTimerEvent(index)
+  Log.info('event!')
+end
+
 function Miwos.handleNoteOn(input, ...)
   Miwos.input:output(input + 1, Midi.NoteOn(...))
 end

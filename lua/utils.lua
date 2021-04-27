@@ -1,6 +1,6 @@
 local function callIfExists(fn, args)
   if fn then
-    fn(unpack(args))
+    fn(unpack(args or {}))
   end
 end
 

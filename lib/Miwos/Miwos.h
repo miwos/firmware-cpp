@@ -11,6 +11,7 @@
 #include "LuaInterface.h"
 #include "Devices.h"
 #include "Displays.h"
+#include "Timer.h"
 
 namespace Miwos {
   SLIPSerial slipSerial(Serial);
@@ -45,6 +46,7 @@ namespace Miwos {
 
     Devices::begin();
     Displays::begin();
+    Timer::begin(&lua);
     CppInterface::begin(&lua, &bridge);
     LuaInterface::begin(&lua);
   }
@@ -52,14 +54,7 @@ namespace Miwos {
   void update() {
     bridge.update();
     usbMIDI.read();
-
-    uint32_t newTime = millis();
-    if (currentTime != newTime) {
-      currentTime = newTime;
-      if (currentTime % 1000 == 0) {
-        LuaInterface::update(currentTime);
-      }
-    }
+    Timer::update();
   }
 }
 
