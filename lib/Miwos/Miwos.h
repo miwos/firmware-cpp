@@ -10,6 +10,7 @@
 #include "CppInterface.h"
 #include "LuaInterface.h"
 #include "Devices.h"
+#include "Displays.h"
 
 namespace Miwos {
   SLIPSerial slipSerial(Serial);
@@ -43,6 +44,7 @@ namespace Miwos {
     lua.begin();
 
     Devices::begin();
+    Displays::begin();
     CppInterface::begin(&lua, &bridge);
     LuaInterface::begin(&lua);
   }
