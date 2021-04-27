@@ -12,7 +12,6 @@ function MiwosOutput:input(index, message)
   }
 
   local action = actions[message.type]
-  Log.info(message.type)
   if action then
     -- Decrease index, because we use zero-based index in c++.
     action(index - 1, unpack(message.payload))

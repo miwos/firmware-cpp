@@ -6,7 +6,7 @@ function Hold:init()
 end
 
 function Hold:input1_noteOn(message)
-  local time = getTime()
+  local time = Timer.now()
   if (time - self.lastNoteTime > 100) then
     self:clear()
   end

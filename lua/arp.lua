@@ -5,10 +5,20 @@ function Arp:init()
   self.noteIndex = 1
   self.lastNoteTime = 0
   self.timerId = nil
+
+  self.params = {
+    interval = 1000,
+    gate = 0.1,
+    hold = false
+  }
+end
+
+function Arp:setParam(name, value)
+  self.params[name] = value
 end
 
 function Arp:input1_noteOn(message)
-  local time = getTime()
+  local time = Timer.now()
   if (time - self.lastNoteTime > 100) then
     self:clear()
   end
@@ -20,24 +30,34 @@ function Arp:input1_noteOn(message)
   end
 end
 
-function Arp:update()
-  local noteIndex = self.noteIndex
+function Arp:input1_noteOff()
+  if not self.params.hold then self:clear() end
+end
 
-  local note = self.notes[noteIndex]
+function Arp:update()
+  if self.noteIndex > #self.notes then self.noteIndex = 1 end
+
+  local interval = self.params.interval
+  local gateDuration = math.max(10, interval * self.params.gate)
+
+  local note = self.notes[self.noteIndex]
   -- Check for nil because the notes might have been cleared in the meantime.
   if note ~= nil then
     self:output(1, Midi.NoteOn(unpack(note)))
-    Miwos.Timer:schedule(getTime() + 50, function ()
+    Timer.schedule(Timer.now() + gateDuration, function ()
       self:output(1, Midi.NoteOff(unpack(note)))
     end)
   end
 
   local _self = self
-  self.timerId = Miwos.Timer:schedule(getTime() + 500, function ()
+  self.timerId = Timer.schedule(Timer.now() + self.params.interval, function ()
     Arp.update(_self)
   end)
 
-  self.noteIndex = noteIndex < #self.notes and noteIndex + 1 or 1
+  -- We increase the index by one, even though this may make it larger than the
+  -- total number of notes, because new notes may have been added until the next
+  -- time `Arp:update()` is called.
+  self.noteIndex = self.noteIndex + 1
 end
 
 function Arp:addNote(note)
@@ -46,10 +66,11 @@ end
 
 function Arp:clear()
   for _, note in pairs(self.notes) do
-    self:output(1, Midi.NoteOn(unpack(note)))
+    self:output(1, Midi.NoteOff(unpack(note)))
   end
+  Timer.cancel(self.timerId)
   self.notes = {}
-  Miwos.Timer:cancel(self.timerId)
+  self.noteIndex = 1
   self.playing = false
 end
 
