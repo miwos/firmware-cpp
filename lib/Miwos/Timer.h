@@ -28,6 +28,10 @@ namespace Timer {
     return -1;
   }
 
+  void cancel(byte eventId) {
+    events[eventId].active = false;
+  }
+
   void emit(byte index) {
     if (!lua->getFunction("Timer", "handleEvent")) return;
     lua->push(index);
@@ -43,10 +47,21 @@ namespace Timer {
     }
   }
 
-  int cpp_schedule(lua_State *L) {
+  int luaSchedule(lua_State *L) {
     uint32_t time = lua_tonumber(L, 1);
     int16_t id = schedule(time);
     lua->push(id);
+    return 1;
+  }
+
+  int luaCancel(lua_State *L) {
+    byte eventId = lua_tonumber(L, 1);
+    cancel(eventId);
+    return 0;
+  }
+
+  int luaNow(lua_State *L) {
+    lua->push(millis());
     return 1;
   }
 
@@ -54,7 +69,9 @@ namespace Timer {
     Timer::lua = lua;
 
     luaL_Reg library[] = {
-      { "cpp_schedule", cpp_schedule },
+      { "_schedule", luaSchedule },
+      { "_cancel", luaCancel },
+      { "now", luaNow },
       { NULL, NULL }
     };
     lua->registerLibrary("Timer", library);

@@ -103,7 +103,7 @@ bool LuaWrapper::getFunction(const char *table, const char *name, bool logError)
   if (!lua_isfunction(L, -1)) {
     if (logError) {
       errorBegin();
-      serial->printf(F("Can't find function `%s`."), name);
+      serial->printf(F("Can't find function `%s` in table `%s`."), name, table);
       errorEnd();
     }
     lua_pop(L, 1);

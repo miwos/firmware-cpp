@@ -1,8 +1,8 @@
-local Midi = {
-  TypeNoteOn = 1,
-  TypeNoteOff = 2,
-  TypeControlChange = 3,
-}
+Midi.TypeNoteOn = 1
+Midi.TypeNoteOff = 2
+Midi.TypeControlChange = 3
+
+-- Send midi
 
 function Midi.NoteOn(note, velocity, channel)
   return Midi.Message(Midi.TypeNoteOn, { note, velocity, channel })
@@ -20,4 +20,12 @@ function Midi.Message(type, payload)
   return { type = type, payload = payload }
 end
 
-return Midi
+-- Receive midi
+
+function Midi.handleNoteOn(input, ...)
+  Miwos.input:output(input + 1, Midi.NoteOn(...))
+end
+
+function Midi.handleNoteOff(input, ...)
+  Miwos.input:output(input + 1, Midi.NoteOff(...))
+end

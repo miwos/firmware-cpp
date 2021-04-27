@@ -3,7 +3,6 @@
 
 #include <LuaWrapper.h>
 #include <MiwosBridge.h>
-#include "Devices.h"
 #include "Displays.h"
 
 namespace CppInterface {
@@ -24,41 +23,7 @@ namespace CppInterface {
   }
 
   namespace Teensy {
-    int sendNoteOn(lua_State *L) {
-      byte deviceIndex = lua_tonumber(L, 1);
-      byte note = lua_tonumber(L, 2);
-      byte velocity = lua_tonumber(L, 3);
-      byte channel = lua_tonumber(L, 4);
-      
-      MidiWrapper* device = Devices::getDevice(deviceIndex);
-      if (device != NULL) device->sendNoteOn(note, velocity, channel);
 
-      return 0;
-    }
-
-    int sendNoteOff(lua_State *L) {
-      byte deviceIndex = lua_tonumber(L, 1);
-      byte note = lua_tonumber(L, 2);
-      byte velocity = lua_tonumber(L, 3);
-      byte channel = lua_tonumber(L, 4);
-
-      MidiWrapper* device = Devices::getDevice(deviceIndex);
-      if (device != NULL) device->sendNoteOff(note, velocity, channel);
-
-      return 0;
-    }
-
-    int sendControlChange(lua_State *L) {
-      byte deviceIndex = lua_tonumber(L, 1);
-      byte control = lua_tonumber(L, 2);
-      byte value = lua_tonumber(L, 3);
-      byte channel = lua_tonumber(L, 4);
-
-      MidiWrapper* device = Devices::getDevice(deviceIndex);
-      if (device != NULL ) device->sendControlChange(control, value, channel);
-
-      return 0;
-    }
 
     int getTime(lua_State *L) {
       lua->push(millis());
@@ -84,14 +49,6 @@ namespace CppInterface {
     CppInterface::lua = lua;
     CppInterface::bridge = bridge;
 
-    const luaL_reg teensyLibrary[] = {
-      { "sendNoteOn", Teensy::sendNoteOn },
-      { "sendNoteOff", Teensy::sendNoteOff },
-      { "sendControlChange", Teensy::sendControlChange },
-      { "getTime", Teensy::getTime },
-      { NULL, NULL }
-    };
-
     const luaL_reg displayLibrary[] = {
       { "write", Display::write },
       { NULL, NULL }
@@ -103,7 +60,6 @@ namespace CppInterface {
       { NULL, NULL }
     };    
 
-    lua->registerLibrary("Teensy", teensyLibrary);
     lua->registerLibrary("Display", displayLibrary); 
     lua->registerLibrary("Log", logLibrary); 
   }

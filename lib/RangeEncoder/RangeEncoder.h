@@ -1,5 +1,5 @@
-#ifndef RangeKnob_h
-#define RangeKnob_h
+#ifndef RangeEncoder_h
+#define RangeEncoder_h
 
 #include <Encoder.h>
 

@@ -8,8 +8,8 @@
 #include <MidiWrapperUsb.h>
 
 #include "CppInterface.h"
-#include "LuaInterface.h"
-#include "Devices.h"
+#include "Midi.h"
+#include "Hardware.h"
 #include "Displays.h"
 #include "Timer.h"
 
@@ -44,17 +44,18 @@ namespace Miwos {
     lua.onErrorEnd([]() { bridge.errorEnd(); });
     lua.begin();
 
-    Devices::begin();
     Displays::begin();
+    Midi::begin(&lua, &bridge);
     Timer::begin(&lua);
+    Hardware::begin(&lua);
     CppInterface::begin(&lua, &bridge);
-    LuaInterface::begin(&lua);
   }
 
   void update() {
     bridge.update();
     usbMIDI.read();
     Timer::update();
+    Hardware::update();
   }
 }
 
