@@ -7,11 +7,11 @@
 #include <MidiWrapper.h>
 #include <MidiWrapperUsb.h>
 
-#include "CppInterface.h"
 #include "Midi.h"
 #include "Hardware.h"
 #include "Displays.h"
 #include "Timer.h"
+#include "Log.h"
 
 namespace Miwos {
   SLIPSerial slipSerial(Serial);
@@ -48,7 +48,7 @@ namespace Miwos {
     Midi::begin(&lua, &bridge);
     Timer::begin(&lua);
     Hardware::begin(&lua);
-    CppInterface::begin(&lua, &bridge);
+    Log::begin(&lua, &bridge);
   }
 
   void update() {
