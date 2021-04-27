@@ -5,15 +5,17 @@ require('encoder')
 require('midi')
 require('miwos')
 
--- collectgarbage("collect")
--- Log.info(collectgarbage('count'))
+local Chorder = require('chorder')
+local chorder = Chorder()
 
--- Miwos = require('miwos')
--- Midi = require('midi')
+local Effect = require('arp')
+effect = Effect()
 
--- Timer:cancel(id)
+Miwos.input:connect(1, chorder, 1)
+chorder:connect(1, effect, 1)
+effect:connect(1, Miwos.output, 1)
 
-Miwos.input:connect(1, Miwos.output, 1)
+
 
 -- local bassPitch = require('BassPitch')()
 
