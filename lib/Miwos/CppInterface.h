@@ -4,10 +4,24 @@
 #include <LuaWrapper.h>
 #include <MiwosBridge.h>
 #include "Devices.h"
+#include "Displays.h"
 
 namespace CppInterface {
   LuaWrapper *lua;
   MiwosBridge *bridge;
+
+  namespace Display {
+    int write(lua_State *L) {
+      byte index = lua_tonumber(L, 1);
+      const char* text = lua_tostring(L, 2);
+
+      Displays::display.clearDisplay();
+      Displays::display.write(text);
+      Displays::display.display();
+      
+      return 0;
+    }
+  }
 
   namespace Teensy {
     int sendNoteOn(lua_State *L) {
@@ -78,13 +92,19 @@ namespace CppInterface {
       { NULL, NULL }
     };
 
+    const luaL_reg displayLibrary[] = {
+      { "write", Display::write },
+      { NULL, NULL }
+    };
+
     const luaL_reg logLibrary[] = {
       { "warning", Log::warning },
       { "info", Log::info },
       { NULL, NULL }
-    };
+    };    
 
     lua->registerLibrary("Teensy", teensyLibrary);
+    lua->registerLibrary("Display", displayLibrary); 
     lua->registerLibrary("Log", logLibrary); 
   }
 };
