@@ -7,7 +7,8 @@ local midiTypeNames = {
   'controlChange'
 }
 
-function Module:init()
+function Module:init(context)
+  self.context = context
   -- The number of inputs.
   self.inputs = 0
   -- The number of outputs.
@@ -18,10 +19,10 @@ end
 
 ---Connect an output to the input of another module.
 ---@param output number
----@param module table
+---@param moduleId number
 ---@param input number
-function Module:connect(output, module, input)
-  self._outputs[output] = { module, input }
+function Module:connect(output, moduleId, input)
+  self._outputs[output] = { moduleId, input }
 end
 
 ---Send data to output.
@@ -31,7 +32,9 @@ function Module:output(index, message)
   local output = self._outputs[index]
   if not output then return end
 
-  local module, input = unpack(output)
+  local moduleId, input = unpack(output)
+  local module = self.context.modules[moduleId]
+  if not module then return end
 
   -- Call a midi-type agnostic function like `input1()`.
   local numberedInput = 'input' .. input

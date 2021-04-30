@@ -5,29 +5,28 @@ require('encoder')
 require('midi')
 require('miwos')
 
-local Chorder = require('chorder')
-local chorder = Chorder()
+local patch = require('patch')
 
-local Effect = require('arp')
-effect = Effect()
+local context = {
+  modules = {}
+}
 
-Miwos.input:connect(1, chorder, 1)
-chorder:connect(1, effect, 1)
-effect:connect(1, Miwos.output, 1)
+for id, Type in pairs(patch.types) do
+  context.modules[id] = Type(context)
+end
 
+collectgarbage('collect')
+print(collectgarbage('count'))
 
+for id, Type in pairs(patch.types) do
+  context.modules[id] = Type(context)
+end
 
--- local bassPitch = require('BassPitch')()
+for _, connection in pairs(patch.connections) do
+  local fromId, output, toId, input = unpack(connection)
 
--- Miwos.input:connect(1, bassPitch, 1)
--- bassPitch:connect(1, Miwos.output, 1)
+  local fromModule = fromId == 0 and Miwos.input or context.modules[fromId]
+  local toModule = toId == 0 and Miwos.output or context.modules[toId]
 
--- hold:connect(1, chorder, 1)
--- chorder:connect(1, Miwos.output, 1)
--- arp:connect(1, Miwos.output, 1)
-
--- hold:connect(1, chorder, 1)
--- chorder:connect(1, Miwos.output, 1)
-
--- collectgarbage("collect")
--- info(collectgarbage('count'))
+  fromModule:connect(output, toModule, input)
+end
