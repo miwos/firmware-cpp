@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "lua-dev": "node ./scripts/lua-dev.mjs"
-  },
-  "devDependencies": {
-    "chokidar": "^3.5.1",
-    "miwos-bridge": "file:../miwos-bridge"
-  }
-}
