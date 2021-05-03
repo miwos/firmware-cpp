@@ -3,27 +3,23 @@
 StdioStream tempFile;
 
 const char luaGlobalVariables[] =
-"Modules = {}\n"
-"LuaRoot = 'lua/'\n"
-"Debug = false\n";
+"_LOADED = {}\n"
+"LuaRoot = 'lua/'\n";
 
 const char luaRequire[] = 
 "function require(moduleName)\n"
-"  local isCached = Modules[moduleName] ~= nil\n"
-"  if not isCached then\n"
-"    Modules[moduleName] = loadModule(LuaRoot .. moduleName .. '.lua')\n"
+"  if _LOADED[moduleName] == nil then\n"
+"    local path = string.gsub(moduleName, '%.', '/')\n"
+"    _LOADED[moduleName] = loadfile(LuaRoot .. path .. '.lua')\n"
 "  end\n"
-"  if Debug then\n"
-"    print(string.format('Require module `%s` from %s', moduleName, isCached and 'cache' or 'file'))\n"
-"  end\n"
-"  return Modules[moduleName]\n"
+"  return _LOADED[moduleName]\n"
 "end\n";
 
 LuaWrapper::LuaWrapper(Stream* serial) {
   this->serial = serial;
 }
 
-int LuaWrapper::luaLoadModule() {
+int LuaWrapper::luaLoadFile() {
   const char* fileName = lua_tostring(L, 1);
   check(luaL_loadfile(L, fileName));
   lua_call(L, 0, 1);
@@ -136,8 +132,8 @@ void LuaWrapper::begin() {
 
   // Polyfill lua's `require` function.
   static LuaWrapper *that = this;
-  registerFunction("loadModule", [](lua_State* L) {
-    return that->luaLoadModule();
+  registerFunction("loadfile", [](lua_State* L) {
+    return that->luaLoadFile();
   });
   execute(luaRequire);
 }

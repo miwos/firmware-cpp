@@ -40,7 +40,7 @@ public:
   void onErrorEnd(Callback handler) { handleErrorEnd = handler; }
 
 private:
-  int luaLoadModule();
+  int luaLoadFile();
   void errorBegin();
   void errorEnd();
 };
