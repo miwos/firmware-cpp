@@ -11,7 +11,7 @@
 #include <limits.h>
 #include <stddef.h>
 
-#define LUA_OPTIMIZE_DEBUG 3
+#define LUA_OPTIMIZE_DEBUG 0
 #define LUA_OPTIMIZE_MEMORY 2
 
 /*
