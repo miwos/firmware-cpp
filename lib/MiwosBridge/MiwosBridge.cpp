@@ -116,24 +116,28 @@ void MiwosBridge::update() {
 /**
  * Return the OSC address for a log type. 
  */
-const char* MiwosBridge::getLogAddress(LogType type) {
-  switch (type) {
-    case LogTypeInfo:
-      return "/log/info";
-    case LogTypeWarning:
-      return "/log/warning";
-    case LogTypeError:
-      return "/log/error";
-    default:
-      return "/undefined";
-  }
+const char* MiwosBridge::getLogAddress(LogType type, bool raw) {
+  return 
+    type == LogTypeInfo && raw
+    ? "/log/raw/info"
+    : type == LogTypeInfo
+    ? "log/info"
+    : type == LogTypeWarning && raw
+    ? "/log/raw/warning"
+    : type == LogTypeWarning
+    ? "/log/warning"
+    : type == LogTypeError && raw
+    ? "/log/raw/error"
+    : type == LogTypeError
+    ? "/log/error"
+    : "/undefined";
 }
 
 /**
  * Send an OSC "/log/{type}" message.
  */
 void MiwosBridge::log(LogType type, const char* text) {
-  OSCMessage message(getLogAddress(type));
+  OSCMessage message(getLogAddress(type, false));
   message.add(text);
   sendMessage(message);
 }
@@ -159,12 +163,12 @@ void MiwosBridge::error(const char* text) {
   log(LogTypeError, text);
 }
 
-void MiwosBridge::errorBegin() {
-  OSCMessage message("/log/raw/error");
+void MiwosBridge::logBegin(LogType type) {
+  OSCMessage message(getLogAddress(type, true));
   sendMessage(message);
   slipSerial->beginPacket();
 }
 
-void MiwosBridge::errorEnd() {
+void MiwosBridge::logEnd() {
   slipSerial->endPacket();
 }

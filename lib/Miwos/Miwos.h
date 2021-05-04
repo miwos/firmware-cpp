@@ -40,8 +40,8 @@ namespace Miwos {
     bridge.begin();
     bridge.onOscInput(&handleOscInput);
 
-    lua.onErrorBegin([]() { bridge.errorBegin(); });
-    lua.onErrorEnd([]() { bridge.errorEnd(); });
+    lua.onErrorBegin([]() { bridge.logBegin(bridge.LogTypeError); });
+    lua.onErrorEnd([]() { bridge.logEnd(); });
     lua.begin();
 
     Displays::begin();

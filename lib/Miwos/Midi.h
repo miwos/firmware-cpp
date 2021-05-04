@@ -21,10 +21,10 @@ namespace Midi {
    */
   MidiWrapper* getDevice(byte index) {
     if (index >= maxDevices) {
-      bridge->errorBegin();
+      bridge->logBegin(bridge->LogTypeError);
       // Increase the index to be consistent with lua's index.
       Serial.printf(F("Midi device #%d doesn't exist."), index + 1);
-      bridge->errorEnd();
+      bridge->logEnd();
       return NULL;
     }
     return devices[index];

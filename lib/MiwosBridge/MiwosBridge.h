@@ -10,8 +10,7 @@
 class MiwosBridge {
 public:
   static const uint16_t fileNameLength = 256;
-  
-private:
+
   enum ReadSerialMode {
     ReadSerialModeOSC,
     ReadSerialModeFile
@@ -22,7 +21,8 @@ private:
     LogTypeWarning,
     LogTypeError
   };
-
+  
+private:
   SdFat sd;
   File fileRead;
   File fileWrite;
@@ -38,7 +38,7 @@ private:
   void endWriteFile();
   void readFile(char* fileName);
 
-  const char* getLogAddress(LogType type);
+  const char* getLogAddress(LogType type, bool raw);
   void log(LogType type, const char* text);
 
 public:
@@ -55,9 +55,10 @@ public:
   void info(const char* text);
   void warning(const char* text);
   void error(const char* text);
-  void errorBegin();
-  void errorEnd();
 
+  void logBegin(LogType type);
+  void logEnd();
+  
   void onOscInput(OscInputHandler handler) {
     oscInputHandler = handler;
   }
