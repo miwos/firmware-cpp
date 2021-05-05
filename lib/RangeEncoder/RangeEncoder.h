@@ -17,7 +17,7 @@ public:
     this->max = max;
   }
 
-  inline int32_t read() {
+  int32_t read() {
     int32_t newValue = encoder->read();
 
     if (newValue < min) {
@@ -32,11 +32,15 @@ public:
     return value;
   }
 
-  inline int32_t read(bool &changed) {
+  int32_t read(bool &changed) {
     int32_t oldValue = value;
     int32_t value = read();
     changed = value != oldValue;
     return value;
+  }
+
+  void write(int32_t value) {
+    encoder->write(value);
   }
 
   ~RangeEncoder() {
