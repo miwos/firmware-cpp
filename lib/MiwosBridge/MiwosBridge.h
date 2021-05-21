@@ -55,9 +55,11 @@ public:
   void info(const char* text);
   void warning(const char* text);
   void error(const char* text);
+  void dump(const char* text);
 
   void logBegin(LogType type);
   void logEnd();
+  void flush();
   
   void onOscInput(OscInputHandler handler) {
     oscInputHandler = handler;

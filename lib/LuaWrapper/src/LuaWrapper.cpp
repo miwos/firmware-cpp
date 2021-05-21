@@ -9,6 +9,7 @@ const char luaGlobalVariables[] =
 const char luaRequire[] = 
 "function require(moduleName)\n"
 "  if _LOADED[moduleName] == nil then\n"
+"    local root = LuaRoot or 'lua/'\n"
 "    local path = string.gsub(moduleName, '%.', '/')\n"
 "    _LOADED[moduleName] = loadfile(LuaRoot .. path .. '.lua')\n"
 "  end\n"

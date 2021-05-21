@@ -121,7 +121,7 @@ const char* MiwosBridge::getLogAddress(LogType type, bool raw) {
     type == LogTypeInfo && raw
     ? "/log/raw/info"
     : type == LogTypeInfo
-    ? "log/info"
+    ? "/log/info"
     : type == LogTypeWarning && raw
     ? "/log/raw/warning"
     : type == LogTypeWarning
@@ -163,6 +163,12 @@ void MiwosBridge::error(const char* text) {
   log(LogTypeError, text);
 }
 
+void MiwosBridge::dump(const char* text) {
+  OSCMessage message("/dump");
+  message.add(text);
+  sendMessage(message);
+}
+
 void MiwosBridge::logBegin(LogType type) {
   OSCMessage message(getLogAddress(type, true));
   sendMessage(message);
@@ -170,5 +176,9 @@ void MiwosBridge::logBegin(LogType type) {
 }
 
 void MiwosBridge::logEnd() {
+  slipSerial->endPacket();
+}
+
+void MiwosBridge::flush() {
   slipSerial->endPacket();
 }
