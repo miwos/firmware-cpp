@@ -1,7 +1,8 @@
 {
-  "Lua.diagnostics.disable": ["undefined-global"],
+  "editor.defaultFormatter": "ms-vscode.cpptools",
+  "editor.formatOnSave": true,
+  "C_Cpp.clang_format_style": "LLVM",
   "files.exclude": {
-    "/lib/LuaWrapper/lua": true,
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
