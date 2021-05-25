@@ -1,10 +1,14 @@
 #include <Arduino.h>
-#include <Miwos.h>
+
+
+SLIPSerial slipSerial(Serial);
+LuaOnArduino loa(&slipSerial);
 
 void setup() {
-  Miwos::begin();
+  while (!Serial) {}
+  loa.begin();
 }
 
 void loop() {
-  Miwos::update();
+  loa.update();
 }
