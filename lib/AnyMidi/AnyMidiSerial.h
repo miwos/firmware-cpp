@@ -1,21 +1,20 @@
-#ifndef MidiWrapperSerial_h
-#define MidiWrapperSerial_h
+#ifndef MidiSerial_h
+#define MidiSerial_h
 
-#include "MidiWrapper.h"
+#include "AnyMidi.h"
 #include <MIDI.h>
 
-class MidiWrapperSerial : MidiWrapper {
+class AnyMidiSerial : AnyMidi {
 public:
-  
-  void inline sendNoteOn(byte note, byte velocity, byte channel) {
+  void sendNoteOn(byte note, byte velocity, byte channel) {
     usbMIDI.sendNoteOn(note, velocity, channel);
   }
 
-  void inline sendNoteOff(byte note, byte velocity, byte channel) {
+  void sendNoteOff(byte note, byte velocity, byte channel) {
     usbMIDI.sendNoteOff(note, velocity, channel);
   }
 
-  void inline sendControlChange(byte control, byte value, byte channel) {
+  void sendControlChange(byte control, byte value, byte channel) {
     usbMIDI.sendControlChange(control, value, channel);
   }
 
