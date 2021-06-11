@@ -1,7 +1,6 @@
 {
   "editor.defaultFormatter": "ms-vscode.cpptools",
   "editor.formatOnSave": true,
-  "C_Cpp.clang_format_style": "LLVM",
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

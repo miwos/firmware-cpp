@@ -1,16 +1,15 @@
 #include <Arduino.h>
-
-#include <SLIPSerial.h>
-#include <LuaOnArduino.h>
-
-SLIPSerial slipSerial(Serial);
-LuaOnArduino loa(&slipSerial);
+#include <Miwos.h>
+#include <Wire.h>
 
 void setup() {
-  while (!Serial) {}
-  loa.begin();
+  while (!Serial) {
+    ; // Wait for Serial.
+  }
+  Miwos::begin();
 }
 
 void loop() {
-  loa.update();
+  Miwos::update();
+  usbMIDI.read();
 }
