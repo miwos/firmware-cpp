@@ -28,6 +28,12 @@ public:
     }
     return devices[index];
   }
+
+  void update() {
+    for (byte i = 0; i < maxDevices; i++) {
+      devices[i]->update();
+    }
+  }
 };
 
 #endif

@@ -22,7 +22,6 @@ Displays displays(&loa);
 Timer timer(&loa);
 
 void begin() {
-  loa.begin();
   loa.onInstall([]() {
     LuaMidiLibrary::install(&loa, &midiDevices);
     LuaEncoderLibrary::install(&loa, &encoders);
@@ -34,6 +33,7 @@ void begin() {
       loa.lua.call(0, 0);
     }
   });
+  loa.begin();
   displays.begin();
 }
 
@@ -41,6 +41,7 @@ void update() {
   loa.update();
   encoders.update();
   timer.update();
+  midiDevices.update();
 }
 
 } // namespace Miwos

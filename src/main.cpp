@@ -9,7 +9,4 @@ void setup() {
   Miwos::begin();
 }
 
-void loop() {
-  Miwos::update();
-  usbMIDI.read();
-}
+void loop() { Miwos::update(); }
