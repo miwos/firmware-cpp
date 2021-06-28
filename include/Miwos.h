@@ -23,11 +23,16 @@ Timer timer(&loa);
 
 void begin() {
   loa.begin();
-  loa.install([]() {
+  loa.onInstall([]() {
     LuaMidiLibrary::install(&loa, &midiDevices);
     LuaEncoderLibrary::install(&loa, &encoders);
     LuaDisplayLibrary::install(&loa, &displays);
     LuaTimerLibrary::install(&loa, &timer);
+  });
+  loa.beforeReset([]() {
+    if (loa.lua.getFunction("Miwos", "destroy", false)) {
+      loa.lua.call(0, 0);
+    }
   });
   displays.begin();
 }
