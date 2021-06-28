@@ -7,7 +7,6 @@ class AnyMidiUsb : public AnyMidi {
 public:
   void update() {
     if (usbMIDI.read() && handleInput != NULL) {
-      Serial.print("Handle Input!");
       byte type = usbMIDI.getType();
       byte data1 = usbMIDI.getData1();
       byte data2 = usbMIDI.getData2();
