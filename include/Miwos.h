@@ -8,6 +8,7 @@
 #include <SLIPSerial.h>
 #include <Timer.h>
 
+#include <LuaBridgeLibrary.h>
 #include <LuaDisplayLibrary.h>
 #include <LuaEncoderLibrary.h>
 #include <LuaMidiLibrary.h>
@@ -28,7 +29,7 @@ void handleOscInput(OSCMessage &oscInput) {
   oscInput.dispatch("/patch/update", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
-    if (lua->getFunction("Patch", "update")) {
+    if (lua->getFunction("Patches", "update")) {
       lua->push(name);
       lua->call(1, 0);
     }
@@ -36,12 +37,24 @@ void handleOscInput(OSCMessage &oscInput) {
     loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId);
   });
 
-  // oscInput.dispatch("/patch/prop", [](OSCMessage &message) {
-  //   lua->getFunction("Patch", "updateProp")
+  oscInput.dispatch("/patch/prop", [](OSCMessage &message) {
+    int moduleId = message.getInt(0);
+    message.getString(1, name, LuaOnArduino::maxFileNameLength);
 
-  //   int moduleId = message.getInt(0);
+    float value = 0;
+    if (message.isFloat(2)) {
+      value = message.getFloat(2);
+    } else if (message.isInt(2)) {
+      value = message.getInt(2);
+    }
 
-  // });
+    if (lua->getFunction("Patches", "changeProp")) {
+      lua->push(moduleId);
+      lua->push(name);
+      lua->push(value);
+      lua->call(3, 0);
+    }
+  });
 }
 
 void begin() {
@@ -50,6 +63,7 @@ void begin() {
     LuaEncodersLibrary::install(&loa, &encoders);
     LuaDisplaysLibrary::install(&loa, &displays);
     LuaTimerLibrary::install(&loa, &timer);
+    LuaBridgeLibrary::install(&loa);
   });
 
   loa.beforeReset([]() {
