@@ -11,12 +11,13 @@ public:
       byte data1 = usbMIDI.getData1();
       byte data2 = usbMIDI.getData2();
       byte channel = usbMIDI.getChannel();
-      handleInput(type, data1, data2, channel);
+      byte cable = usbMIDI.getCable();
+      handleInput(type, data1, data2, channel, cable);
     }
   }
 
-  void send(byte type, byte data1, byte data2, byte channel) {
-    usbMIDI.send(type, data1, data2, channel, 0);
+  void send(byte type, byte data1, byte data2, byte channel, byte cable) {
+    usbMIDI.send(type, data1, data2, channel, cable);
   }
 };
 

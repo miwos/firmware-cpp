@@ -10,7 +10,8 @@ namespace LuaMidiLibrary {
 Lua *lua;
 MidiDevices *midiDevices;
 
-void handleInput(byte index, byte type, byte data1, byte data2, byte channel) {
+void handleInput(byte index, byte type, byte data1, byte data2, byte channel,
+    byte cable = 0) {
   if (!lua->getFunction("Midi", "handleInput")) return;
   lua->push(index + 1); // Use one-based index.
   lua->push(type);
@@ -26,9 +27,10 @@ int send(lua_State *L) {
   byte data1 = lua_tonumber(L, 3);
   byte data2 = lua_tonumber(L, 4);
   byte channel = lua_tonumber(L, 5);
+  byte cable = lua_tonumber(L, 6);
 
   AnyMidi *device = midiDevices->getDevice(index);
-  if (device != NULL) device->send(type, data1, data2, channel);
+  if (device != NULL) device->send(type, data1, data2, channel, cable);
   return 0;
 }
 
@@ -43,9 +45,10 @@ void install(LuaOnArduino *loa, MidiDevices *midiDevices) {
     static auto deviceIndex = i;
     AnyMidi *device = midiDevices->getDevice(deviceIndex);
 
-    device->onInput([](byte type, byte data1, byte data2, byte channel) {
-      handleInput(deviceIndex, type, data1, data2, channel);
-    });
+    device->onInput(
+        [](byte type, byte data1, byte data2, byte channel, byte cable) {
+          handleInput(deviceIndex, type, data1, data2, channel, cable);
+        });
   }
 }
 } // namespace LuaMidiLibrary
