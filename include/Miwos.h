@@ -25,23 +25,30 @@ Lua *lua = &loa.lua;
 void handleOscInput(OSCMessage &oscInput) {
   static char name[LuaOnArduino::maxFileNameLength];
 
-  oscInput.dispatch("/update-patch", [](OSCMessage &message) {
+  oscInput.dispatch("/patch/update", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
-    if (lua->getFunction("Miwos", "updatePatch")) {
+    if (lua->getFunction("Patch", "update")) {
       lua->push(name);
       lua->call(1, 0);
     }
     // TODO: check if `updatePatch` actually was successful.
     loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId);
   });
+
+  // oscInput.dispatch("/patch/prop", [](OSCMessage &message) {
+  //   lua->getFunction("Patch", "updateProp")
+
+  //   int moduleId = message.getInt(0);
+
+  // });
 }
 
 void begin() {
   loa.onInstall([]() {
     LuaMidiLibrary::install(&loa, &midiDevices);
-    LuaEncoderLibrary::install(&loa, &encoders);
-    LuaDisplayLibrary::install(&loa, &displays);
+    LuaEncodersLibrary::install(&loa, &encoders);
+    LuaDisplaysLibrary::install(&loa, &displays);
     LuaTimerLibrary::install(&loa, &timer);
   });
 

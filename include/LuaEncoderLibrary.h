@@ -1,15 +1,15 @@
-#ifndef LuaEncoderLibrary_h
-#define LuaEncoderLibrary_h
+#ifndef LuaEncodersLibrary_h
+#define LuaEncodersLibrary_h
 
 #include <Encoders.h>
 #include <LuaOnArduino.h>
 
-namespace LuaEncoderLibrary {
+namespace LuaEncodersLibrary {
 Lua *lua;
 Encoders *encoders;
 
 void handleChange(byte encoderIndex, int32_t value) {
-  if (!lua->getFunction("Encoder", "handleChange")) return;
+  if (!lua->getFunction("Encoders", "handleChange")) return;
   lua->push(encoderIndex + 1); // Use one-based index.
   lua->push(value);
   lua->call(2, 0);
@@ -25,15 +25,15 @@ int write(lua_State *L) {
 }
 
 void install(LuaOnArduino *loa, Encoders *encoders) {
-  LuaEncoderLibrary::lua = &(loa->lua);
-  LuaEncoderLibrary::encoders = encoders;
+  LuaEncodersLibrary::lua = &(loa->lua);
+  LuaEncodersLibrary::encoders = encoders;
 
   const luaL_reg library[] = {{"write", write}, {NULL, NULL}};
-  lua->registerLibrary("Encoder", library);
+  lua->registerLibrary("Encoders", library);
 
   encoders->onChange(handleChange);
 }
 
-} // namespace LuaEncoderLibrary
+} // namespace LuaEncodersLibrary
 
 #endif

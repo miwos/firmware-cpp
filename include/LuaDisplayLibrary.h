@@ -1,10 +1,10 @@
-#ifndef LuaDisplayLibrary_h
-#define LuaDisplayLibrary_h
+#ifndef LuaDisplaysLibrary_h
+#define LuaDisplaysLibrary_h
 
 #include <Displays.h>
 #include <LuaOnArduino.h>
 
-namespace LuaDisplayLibrary {
+namespace LuaDisplaysLibrary {
 Lua *lua;
 Displays *displays;
 
@@ -23,13 +23,13 @@ int write(lua_State *L) {
 }
 
 void install(LuaOnArduino *loa, Displays *displays) {
-  LuaDisplayLibrary::lua = &(loa->lua);
-  LuaDisplayLibrary::displays = displays;
+  LuaDisplaysLibrary::lua = &(loa->lua);
+  LuaDisplaysLibrary::displays = displays;
 
   const luaL_reg library[] = {{"write", write}, {NULL, NULL}};
-  lua->registerLibrary("Display", library);
+  lua->registerLibrary("Displays", library);
 }
 
-} // namespace LuaDisplayLibrary
+} // namespace LuaDisplaysLibrary
 
 #endif
