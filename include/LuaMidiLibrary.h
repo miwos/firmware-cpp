@@ -17,8 +17,9 @@ void handleInput(byte index, byte type, byte data1, byte data2, byte channel,
   lua->push(type);
   lua->push(data1);
   lua->push(data2);
-  lua->push(channel);
-  lua->call(5, 0);
+  lua->push(channel + 1); // Use one-based index.
+  lua->push(cable + 1);   // Use one-based index.
+  lua->call(6, 0);
 }
 
 int send(lua_State *L) {
@@ -26,8 +27,8 @@ int send(lua_State *L) {
   byte type = lua_tonumber(L, 2);
   byte data1 = lua_tonumber(L, 3);
   byte data2 = lua_tonumber(L, 4);
-  byte channel = lua_tonumber(L, 5);
-  byte cable = lua_tonumber(L, 6);
+  byte channel = lua_tonumber(L, 5) - 1; // Use zero-based index.
+  byte cable = lua_tonumber(L, 6) - 1;   // Use zero-based index.
 
   AnyMidi *device = midiDevices->getDevice(index);
   if (device != NULL) device->send(type, data1, data2, channel, cable);
