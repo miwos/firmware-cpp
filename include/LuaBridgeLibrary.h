@@ -8,6 +8,7 @@
 namespace LuaBridgeLibrary {
 Lua *lua;
 Bridge *bridge;
+bool connected = false;
 
 int sendPropChange(lua_State *L) {
   byte moduleId = lua_tonumber(L, 1);

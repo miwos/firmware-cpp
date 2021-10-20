@@ -26,6 +26,28 @@ Lua *lua = &loa.lua;
 void handleOscInput(OSCMessage &oscInput) {
   static char name[LuaOnArduino::maxFileNameLength];
 
+  oscInput.dispatch("/bridge/connect",
+      [](OSCMessage &message) { LuaBridgeLibrary::connected = true; });
+
+  oscInput.dispatch("/bridge/disconnect",
+      [](OSCMessage &message) { LuaBridgeLibrary::connected = false; });
+
+  oscInput.dispatch("/info/memory-usage", [](OSCMessage &message) {
+    uint16_t responseId = message.getInt(0);
+
+    if (!lua->getFunction("Miwos", "getMemoryUsage")) {
+      loa.bridge.sendResponse(Bridge::ResponseError, responseId);
+      return;
+    }
+
+    lua->push(name);
+    lua->call(1, 1);
+    int usedMemory = (int)lua_tointeger(lua->L, -1);
+    lua_pop(lua->L, 1);
+
+    loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId, usedMemory);
+  });
+
   oscInput.dispatch("/patch/update", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
