@@ -15,7 +15,7 @@ int write(lua_State *L) {
   Displays::Display *display = displays->getDisplay(index);
   if (display != NULL) {
     display->clearDisplay();
-    display->setCursor(0, 16);
+    display->setCursor(0, 27);
     display->print(text);
     display->display();
   }

@@ -3,8 +3,8 @@
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Fonts/FreeSans12pt7b.h>
 #include <LuaOnArduino.h>
+#include <fonts/Vevey_Positive20pt7b.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
@@ -27,7 +27,7 @@ private:
 
   void initializeDisplay(Display *display) {
     display->clearDisplay();
-    display->setFont(&FreeSans12pt7b);
+    display->setFont(&Vevey_Positive20pt7b);
     display->setCursor(0, 10);
     display->setTextColor(WHITE);
     // !For some reasons when using `display->setTextColor()` have to print
