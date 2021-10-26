@@ -15,6 +15,12 @@ void handleChange(byte encoderIndex, int32_t value) {
   lua->call(2, 0);
 }
 
+void handleClick(byte encoderIndex) {
+  if (!lua->getFunction("Encoders", "handleClick")) return;
+  lua->push(encoderIndex + 1); // Use one-based index.
+  lua->call(1, 0);
+}
+
 int write(lua_State *L) {
   byte index = lua_tonumber(L, 1) - 1; // Use zero-based index.
   int32_t value = lua_tonumber(L, 2);
@@ -32,6 +38,7 @@ void install(LuaOnArduino *loa, Encoders *encoders) {
   lua->registerLibrary("Encoders", library);
 
   encoders->onChange(handleChange);
+  encoders->onClick(handleClick);
 }
 
 } // namespace LuaEncodersLibrary
