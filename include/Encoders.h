@@ -16,11 +16,11 @@ public:
   static const byte maxEncoders = 2;
   typedef void (*ChangeHandler)(byte encoderIndex, int32_t value);
   typedef void (*ClickHandler)(byte encoderIndex);
+  RangeEncoder *encoders[maxEncoders] = {&encoder1, &encoder2};
+  Button *buttons[maxEncoders] = {&button1, &button2};
 
 private:
   LuaOnArduino *loa;
-  RangeEncoder *encoders[maxEncoders] = {&encoder1, &encoder2};
-  Button *buttons[maxEncoders] = {&button1, &button2};
   ChangeHandler handleChange;
   ClickHandler handleClick;
   uint32_t lastUpdate = 0;

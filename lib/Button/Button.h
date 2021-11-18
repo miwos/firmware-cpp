@@ -11,9 +11,11 @@ public:
 
   void begin() { pinMode(pin, INPUT_PULLUP); }
 
+  bool read() { return digitalRead(pin); }
+
   bool read(bool &changed) {
     bool oldState = state;
-    state = digitalRead(pin);
+    state = read();
     changed = state != oldState;
     return state;
   }
