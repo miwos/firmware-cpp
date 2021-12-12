@@ -37,7 +37,7 @@ public:
         return i;
       }
     }
-    loa->logger.warning("Couldn't register event: no timer slot available");
+    loa->logger.warn("Couldn't register event: no timer slot available");
     return -1;
   }
 
