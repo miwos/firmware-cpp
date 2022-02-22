@@ -5,16 +5,12 @@
 
 class Timer {
 private:
-  LuaOnArduino *loa;
   Lua *lua;
 
 public:
   uint32_t currentTime = 0;
 
-  Timer(LuaOnArduino *loa) {
-    this->loa = loa;
-    lua = &(loa->lua);
-  }
+  Timer(LuaOnArduino *loa) { lua = &(loa->lua); }
 
   void update() {
     uint32_t newTime = millis();
