@@ -5,6 +5,8 @@
 
 class AnyMidiUsb : public AnyMidi {
 public:
+  AnyMidiUsb(byte index) : AnyMidi(index) {}
+
   void update() {
     if (usbMIDI.read() && handleInput != NULL) {
       byte type = usbMIDI.getType();
@@ -12,7 +14,7 @@ public:
       byte data2 = usbMIDI.getData2();
       byte channel = usbMIDI.getChannel();
       byte cable = usbMIDI.getCable();
-      handleInput(type, data1, data2, channel, cable);
+      handleInput(index, type, data1, data2, channel, cable);
     }
   }
 

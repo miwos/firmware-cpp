@@ -17,13 +17,14 @@
 class Displays {
 public:
   typedef Adafruit_SSD1306 Display;
-  static const byte maxDisplays = 2;
+  static const byte maxDisplays = 3;
 
 private:
   LuaOnArduino *loa;
   Display displays[maxDisplays] = {
       Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET),
-      Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire1, OLED_RESET)};
+      Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire1, OLED_RESET),
+      Display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET)};
 
   void initializeDisplay(Display *display) {
     display->clearDisplay();

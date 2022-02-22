@@ -5,19 +5,22 @@
 #include <LuaOnArduino.h>
 #include <RangeEncoder.h>
 
-RangeEncoder encoder1(24, 25, 0, 127);
-RangeEncoder encoder2(26, 27, 0, 127);
+RangeEncoder encoder1(3, 2, 0, 127);
+RangeEncoder encoder2(36, 37, 0, 127);
+RangeEncoder encoder3(33, 34, 0, 127);
 
-Button button1(11);
-Button button2(12);
+Button encoder1Button(23);
+Button encoder2Button(38);
+Button encoder3Button(35);
 
 class Encoders {
 public:
-  static const byte maxEncoders = 2;
+  static const byte maxEncoders = 3;
   typedef void (*ChangeHandler)(byte encoderIndex, int32_t value);
   typedef void (*ClickHandler)(byte encoderIndex);
-  RangeEncoder *encoders[maxEncoders] = {&encoder1, &encoder2};
-  Button *buttons[maxEncoders] = {&button1, &button2};
+  RangeEncoder *encoders[maxEncoders] = {&encoder1, &encoder2, &encoder3};
+  Button *buttons[maxEncoders] = {
+      &encoder1Button, &encoder2Button, &encoder3Button};
 
 private:
   LuaOnArduino *loa;
@@ -25,11 +28,29 @@ private:
   ClickHandler handleClick;
   uint32_t lastUpdate = 0;
 
+  void _handleChange(byte index, int32_t value) {
+    if (handleChange != NULL) handleChange(index, value);
+    OSCMessage message("/encoder/value");
+    // Use one-based index to be consistent with lua.
+    message.add(index + 1);
+    message.add(value);
+    loa->bridge.sendMessage(message);
+  }
+
+  void _handleClick(byte index) {
+    if (handleClick != NULL) handleClick(index);
+    OSCMessage message("/encoder/click");
+    // Use one-based index to be consistent with lua.
+    message.add(index + 1);
+    loa->bridge.sendMessage(message);
+  }
+
 public:
   Encoders(LuaOnArduino *loa) {
     this->loa = loa;
-    button1.begin();
-    button2.begin();
+    for (byte i = 0; i < maxEncoders; i++) {
+      buttons[i]->begin();
+    }
   }
 
   RangeEncoder *getEncoder(byte index) {
@@ -54,10 +75,10 @@ public:
 
     for (byte i = 0; i < maxEncoders; i++) {
       value = encoders[i]->read(changed);
-      if (changed && handleChange != NULL) handleChange(i, value);
+      if (changed) _handleChange(i, value);
 
       state = buttons[i]->read(changed);
-      if (changed && !state && handleClick != NULL) handleClick(i);
+      if (changed && !state) _handleClick(i);
     }
 
     lastUpdate = currentTime;

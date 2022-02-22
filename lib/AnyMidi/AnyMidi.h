@@ -5,9 +5,14 @@
 
 class AnyMidi {
 public:
+  byte index;
   typedef void (*InputHandler)(
-      byte type, byte data1, byte data2, byte channel, byte cable);
+      byte index, byte type, byte data1, byte data2, byte channel, byte cable);
   InputHandler handleInput;
+
+  AnyMidi(byte index) { this->index = index; }
+
+  virtual void begin(){};
 
   virtual void update() = 0;
 

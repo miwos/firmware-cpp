@@ -39,13 +39,9 @@ public:
     return value;
   }
 
-  void write(int32_t value) {
-    encoder->write(value);
-  }
+  void write(int32_t value) { encoder->write(value); }
 
-  ~RangeEncoder() {
-    delete encoder;
-  }
+  ~RangeEncoder() { delete encoder; }
 };
 
 #endif

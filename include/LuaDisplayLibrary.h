@@ -22,11 +22,21 @@ int write(lua_State *L) {
   return 0;
 }
 
+int clear(lua_State *L) {
+  byte index = lua_tonumber(L, 1) - 1; // Use zero-based index.
+  Displays::Display *display = displays->getDisplay(index);
+  if (display != NULL) {
+    display->clearDisplay();
+    display->display();
+  }
+  return 0;
+}
+
 void install(LuaOnArduino *loa, Displays *displays) {
   LuaDisplaysLibrary::lua = &(loa->lua);
   LuaDisplaysLibrary::displays = displays;
 
-  const luaL_reg library[] = {{"write", write}, {NULL, NULL}};
+  const luaL_reg library[] = {{"write", write}, {"clear", clear}, {NULL, NULL}};
   lua->registerLibrary("Displays", library);
 }
 

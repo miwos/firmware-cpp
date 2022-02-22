@@ -1,16 +1,20 @@
 #ifndef Miwos_h
 #define Miwos_h
 
+#include <Buttons.h>
 #include <Displays.h>
 #include <Encoders.h>
+#include <LEDs.h>
 #include <LuaOnArduino.h>
 #include <MidiDevices.h>
 #include <SLIPSerial.h>
 #include <Timer.h>
 
 #include <LuaBridgeLibrary.h>
+#include <LuaButtonLibrary.h>
 #include <LuaDisplayLibrary.h>
 #include <LuaEncoderLibrary.h>
+#include <LuaLEDLibrary.h>
 #include <LuaMidiLibrary.h>
 #include <LuaTimerLibrary.h>
 
@@ -20,8 +24,11 @@ LuaOnArduino loa(&slipSerial);
 MidiDevices midiDevices(&loa);
 Encoders encoders(&loa);
 Displays displays(&loa);
+Buttons buttons(&loa);
+LEDs leds(&loa);
 Timer timer(&loa);
 Lua *lua = &loa.lua;
+uint32_t currentTime = 0;
 
 void handleOscInput(OSCMessage &oscInput) {
   static char name[LuaOnArduino::maxFileNameLength];
@@ -60,7 +67,7 @@ void handleOscInput(OSCMessage &oscInput) {
   });
 
   oscInput.dispatch("/patch/prop", [](OSCMessage &message) {
-    int moduleId = message.getInt(0);
+    int instanceId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
 
     float value = 0;
@@ -70,11 +77,20 @@ void handleOscInput(OSCMessage &oscInput) {
       value = message.getInt(2);
     }
 
-    if (lua->getFunction("Patches", "changeProp")) {
-      lua->push(moduleId);
+    if (lua->getFunction("Patches", "handlePropChange")) {
+      lua->push(instanceId);
       lua->push(name);
       lua->push(value);
       lua->call(3, 0);
+    }
+  });
+
+  oscInput.dispatch("/mapping/page", [](OSCMessage &message) {
+    byte pageIndex = message.getInt(0);
+    if (lua->getFunction("Interface", "selectPage")) {
+      // Use a one-based index to be consistent with lua.
+      lua->push(pageIndex + 1);
+      lua->call(1, 0);
     }
   });
 }
@@ -84,6 +100,8 @@ void begin() {
     LuaMidiLibrary::install(&loa, &midiDevices);
     LuaEncodersLibrary::install(&loa, &encoders);
     LuaDisplaysLibrary::install(&loa, &displays);
+    LuaButtonsLibrary::install(&loa, &buttons);
+    LuaLEDLibrary::install(&loa, &leds);
     LuaTimerLibrary::install(&loa, &timer);
     LuaBridgeLibrary::install(&loa);
   });
@@ -98,11 +116,14 @@ void begin() {
 
   loa.begin();
   displays.begin();
+  leds.begin();
+  midiDevices.begin();
 }
 
 void update() {
   loa.update();
   encoders.update();
+  buttons.update();
   timer.update();
   midiDevices.update();
 }
