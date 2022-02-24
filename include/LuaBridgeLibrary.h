@@ -52,7 +52,14 @@ int sendInputOutput(lua_State *L) {
   }
 
   bridge->sendMessage(message);
+  return 0;
+}
 
+int sendUpdateInstance(lua_State *L) {
+  byte instanceId = lua_tointeger(L, 1);
+  OSCMessage message("/instance/update");
+  message.add(instanceId);
+  bridge->sendMessage(message);
   return 0;
 }
 
@@ -71,7 +78,8 @@ void install(LuaOnArduino *loa) {
   const luaL_reg library[] = {{"sendProp", sendProp},
       {"_sendInputOutput", sendInputOutput},
       {"_sendActiveOutputs", sendActiveOutputs},
-      {"sendSelectMappingPage", sendSelectMappingPage}, {NULL, NULL}};
+      {"sendSelectMappingPage", sendSelectMappingPage},
+      {"sendUpdateInstance", sendUpdateInstance}, {NULL, NULL}};
   lua->registerLibrary("Bridge", library);
 }
 
