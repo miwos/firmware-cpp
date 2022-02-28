@@ -55,6 +55,13 @@ void handleOscInput(OSCMessage &oscInput) {
     loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId, usedMemory);
   });
 
+  oscInput.dispatch("/module/info", [](OSCMessage &message) {
+    uint16_t responseId = message.getInt(0);
+    message.getString(1, name, LuaOnArduino::maxFileNameLength);
+    const char *info = LuaBridgeLibrary::getModuleInfo(name);
+    loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId, info);
+  });
+
   oscInput.dispatch("/patch/update", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);

@@ -11,6 +11,7 @@ enum Signal { Midi, Trigger };
 namespace LuaBridgeLibrary {
 Lua *lua;
 Bridge *bridge;
+Logger *logger;
 bool connected = false;
 
 int sendProp(lua_State *L) {
@@ -71,9 +72,20 @@ int sendSelectMappingPage(lua_State *L) {
   return 0;
 }
 
+const char *getModuleInfo(const char *moduleId) {
+  if (!lua->getFunction("Modules", "getInfo")) return "";
+  lua->push(moduleId);
+  lua->call(1, 1);
+  // logger->slipSerial->print(lua_tostring(lua->L, -1));
+  const char *info = lua_tostring(lua->L, -1);
+  lua_pop(lua->L, 1);
+  return info;
+}
+
 void install(LuaOnArduino *loa) {
   LuaBridgeLibrary::lua = &(loa->lua);
   LuaBridgeLibrary::bridge = &(loa->bridge);
+  LuaBridgeLibrary::logger = &(loa->logger);
 
   const luaL_reg library[] = {{"sendProp", sendProp},
       {"_sendInputOutput", sendInputOutput},
