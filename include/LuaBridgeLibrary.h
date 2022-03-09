@@ -64,9 +64,9 @@ int sendUpdateInstance(lua_State *L) {
   return 0;
 }
 
-int sendSelectMappingPage(lua_State *L) {
-  byte pageIndex = lua_tonumber(L, 1);
-  OSCMessage message("/mapping/page");
+int sendSelectEncodersPage(lua_State *L) {
+  byte pageIndex = lua_tointeger(L, 1) - 1; // zero-based index
+  OSCMessage message("/encoders/page");
   message.add(pageIndex);
   bridge->sendMessage(message);
   return 0;
@@ -90,7 +90,7 @@ void install(LuaOnArduino *loa) {
   const luaL_reg library[] = {{"sendProp", sendProp},
       {"_sendInputOutput", sendInputOutput},
       {"_sendActiveOutputs", sendActiveOutputs},
-      {"sendSelectMappingPage", sendSelectMappingPage},
+      {"sendSelectEncodersPage", sendSelectEncodersPage},
       {"sendUpdateInstance", sendUpdateInstance}, {NULL, NULL}};
   lua->registerLibrary("Bridge", library);
 }
