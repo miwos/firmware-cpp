@@ -28,23 +28,6 @@ private:
   ClickHandler handleClick;
   uint32_t lastUpdate = 0;
 
-  void _handleChange(byte index, int32_t value) {
-    if (handleChange != NULL) handleChange(index, value);
-    OSCMessage message("/encoder/value");
-    // Use one-based index to be consistent with lua.
-    message.add(index + 1);
-    message.add(value);
-    loa->bridge.sendMessage(message);
-  }
-
-  void _handleClick(byte index) {
-    if (handleClick != NULL) handleClick(index);
-    OSCMessage message("/encoder/click");
-    // Use one-based index to be consistent with lua.
-    message.add(index + 1);
-    loa->bridge.sendMessage(message);
-  }
-
 public:
   Encoders(LuaOnArduino *loa) {
     this->loa = loa;
@@ -75,10 +58,10 @@ public:
 
     for (byte i = 0; i < maxEncoders; i++) {
       value = encoders[i]->read(changed);
-      if (changed) _handleChange(i, value);
+      if (changed && handleChange != NULL) handleChange(i, value);
 
       state = buttons[i]->read(changed);
-      if (changed && !state) _handleClick(i);
+      if (changed && !state && handleClick != NULL) handleClick(i);
     }
 
     lastUpdate = currentTime;
