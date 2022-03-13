@@ -10,6 +10,7 @@
 #include <SLIPSerial.h>
 #include <Timer.h>
 
+#include <LuaAppLibrary.h>
 #include <LuaButtonsLibrary.h>
 #include <LuaDisplaysLibrary.h>
 #include <LuaEncodersLibrary.h>
@@ -73,6 +74,17 @@ void handleOscInput(OSCMessage &oscInput) {
     loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId);
   });
 
+  oscInput.dispatch("/patch/load", [](OSCMessage &message) {
+    uint16_t responseId = message.getInt(0);
+    message.getString(1, name, LuaOnArduino::maxFileNameLength);
+    if (lua->getFunction("Patches", "load")) {
+      lua->push(name);
+      lua->call(1, 0);
+    }
+    // TODO: check if `updatePatch` actually was successful.
+    loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId);
+  });
+
   oscInput.dispatch("/patch/prop", [](OSCMessage &message) {
     int instanceId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
@@ -92,7 +104,16 @@ void handleOscInput(OSCMessage &oscInput) {
     }
   });
 
-  oscInput.dispatch("/mapping/page", [](OSCMessage &message) {
+  oscInput.dispatch("/parts/select", [](OSCMessage &message) {
+    byte partIndex = message.getInt(0);
+    if (lua->getFunction("Interface", "selectPart")) {
+      // Use a one-based index to be consistent with lua.
+      lua->push(partIndex + 1);
+      lua->call(1, 0);
+    }
+  });
+
+  oscInput.dispatch("/encoders/page", [](OSCMessage &message) {
     byte pageIndex = message.getInt(0);
     if (lua->getFunction("Interface", "selectPage")) {
       // Use a one-based index to be consistent with lua.
@@ -104,6 +125,7 @@ void handleOscInput(OSCMessage &oscInput) {
 
 void begin() {
   loa.onInstall([]() {
+    LuaAppLibrary::install(&loa);
     LuaMidiLibrary::install(&loa, &midiDevices);
     LuaEncodersLibrary::install(&loa, &encoders);
     LuaDisplaysLibrary::install(&loa, &displays);

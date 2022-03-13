@@ -5,15 +5,11 @@ extern unsigned long _heap_start;
 extern unsigned long _heap_end;
 extern char *__brkval;
 
-int freeRam() { return (char *)&_heap_end - __brkval; }
-
 void setup() {
   // Serial.begin(9600);
   while (!Serial) {
     ; // Wait for Serial.
   }
-
-  Serial.print(freeRam());
 
   Miwos::begin();
 
