@@ -7,19 +7,7 @@
 namespace LuaEncodersLibrary {
 Lua *lua;
 Encoders *encoders;
-
-void handleChange(byte encoderIndex, int32_t value) {
-  if (!lua->getFunction("Encoders", "handleChange")) return;
-  lua->push(encoderIndex + 1); // Use one-based index.
-  lua->push(value);
-  lua->call(2, 0);
-}
-
-void handleClick(byte encoderIndex) {
-  if (!lua->getFunction("Encoders", "handleClick")) return;
-  lua->push(encoderIndex + 1); // Use one-based index.
-  lua->call(1, 0);
-}
+Bridge *bridge;
 
 int write(lua_State *L) {
   byte index = lua_tonumber(L, 1) - 1; // Use zero-based index.
@@ -30,11 +18,34 @@ int write(lua_State *L) {
   return 0;
 }
 
+int selectPage(lua_State *L) {
+  byte pageIndex = lua_tointeger(L, 1) - 1; // zero-based index
+  OSCMessage message("/encoders/page");
+  message.add(pageIndex);
+  bridge->sendMessage(message);
+  return 0;
+}
+
+void handleChange(byte encoderIndex, int32_t value) {
+  if (!lua->getFunction("Encoders", "handleChange")) return;
+  lua->push(encoderIndex + 1); // one-based index.
+  lua->push(value);
+  lua->call(2, 0);
+}
+
+void handleClick(byte encoderIndex) {
+  if (!lua->getFunction("Encoders", "handleClick")) return;
+  lua->push(encoderIndex + 1); // one-based index.
+  lua->call(1, 0);
+}
+
 void install(LuaOnArduino *loa, Encoders *encoders) {
   LuaEncodersLibrary::lua = &(loa->lua);
   LuaEncodersLibrary::encoders = encoders;
+  LuaEncodersLibrary::bridge = &(loa->bridge);
 
-  const luaL_reg library[] = {{"write", write}, {NULL, NULL}};
+  const luaL_reg library[] = {
+      {"write", write}, {"selectPage", selectPage}, {NULL, NULL}};
   lua->registerLibrary("Encoders", library);
 
   encoders->onChange(handleChange);

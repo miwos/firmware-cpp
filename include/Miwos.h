@@ -10,10 +10,10 @@
 #include <SLIPSerial.h>
 #include <Timer.h>
 
-#include <LuaBridgeLibrary.h>
-#include <LuaButtonLibrary.h>
-#include <LuaDisplayLibrary.h>
-#include <LuaEncoderLibrary.h>
+#include <LuaButtonsLibrary.h>
+#include <LuaDisplaysLibrary.h>
+#include <LuaEncodersLibrary.h>
+#include <LuaInstancesLibrary.h>
 #include <LuaLEDLibrary.h>
 #include <LuaMidiLibrary.h>
 #include <LuaTimerLibrary.h>
@@ -34,10 +34,10 @@ void handleOscInput(OSCMessage &oscInput) {
   static char name[LuaOnArduino::maxFileNameLength];
 
   oscInput.dispatch("/bridge/connect",
-      [](OSCMessage &message) { LuaBridgeLibrary::connected = true; });
+      [](OSCMessage &message) { LuaInstancesLibrary::connected = true; });
 
   oscInput.dispatch("/bridge/disconnect",
-      [](OSCMessage &message) { LuaBridgeLibrary::connected = false; });
+      [](OSCMessage &message) { LuaInstancesLibrary::connected = false; });
 
   oscInput.dispatch("/info/memory-usage", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
@@ -58,7 +58,7 @@ void handleOscInput(OSCMessage &oscInput) {
   oscInput.dispatch("/module/info", [](OSCMessage &message) {
     uint16_t responseId = message.getInt(0);
     message.getString(1, name, LuaOnArduino::maxFileNameLength);
-    const char *info = LuaBridgeLibrary::getModuleInfo(name);
+    const char *info = LuaInstancesLibrary::getModuleInfo(name);
     loa.bridge.sendResponse(Bridge::ResponseSuccess, responseId, info);
   });
 
@@ -110,7 +110,7 @@ void begin() {
     LuaButtonsLibrary::install(&loa, &buttons);
     LuaLEDLibrary::install(&loa, &leds);
     LuaTimerLibrary::install(&loa, &timer);
-    LuaBridgeLibrary::install(&loa);
+    LuaInstancesLibrary::install(&loa);
   });
 
   loa.beforeReset([]() {
