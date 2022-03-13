@@ -4,7 +4,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <LuaOnArduino.h>
-#include <fonts/Vevey_Positive20pt7b.h>
+// #include <fonts/Vevey_Positive20pt7b.h>
+#include <fonts/Vevey_Positive17pt7b.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
@@ -28,15 +29,13 @@ private:
 
   void initializeDisplay(Display *display) {
     display->clearDisplay();
-    display->setFont(&Vevey_Positive20pt7b);
+    display->setFont(&Vevey_Positive17pt7b);
     display->setCursor(0, 10);
     display->setTextColor(WHITE);
-    // !For some reasons when using `display->setTextColor()` have to print
-    // print something afterwards to the serial, otherwise we cant sync files
-    // with loa anymore... really strange.
-    // TODO: Investigate what is causing the problem. Maybe somehow the loa
-    // bridge switches it's read mode?
-    Serial.print(" ");
+    // There was a bug, where we needed to print something to the serial after
+    // using `display#setTextColor()`. This doesn't seem to be the case anymore
+    // but I leave this here in case the bug reappears again.
+    // Serial.print(" ");
   }
 
 public:
