@@ -2,6 +2,7 @@
 #define LuaMidiLibrary_h
 
 #include <AnyMidi.h>
+#include <ChordDetect.h>
 #include <LuaOnArduino.h>
 #include <LuaWrapper.h>
 #include <MidiDevices.h>
@@ -9,6 +10,7 @@
 namespace LuaMidiLibrary {
 Lua *lua;
 MidiDevices *midiDevices;
+ChordDetect chordDetect;
 
 void handleInput(byte index, byte type, byte data1, byte data2, byte channel,
     byte cable = 0) {
@@ -49,12 +51,37 @@ int parseNoteId(lua_State *L) {
   return 2;
 }
 
+int analyzeChord(lua_State *L) {
+  byte argsCount = lua_gettop(L);
+
+  uint16_t chord = 0;
+  for (byte i = 1; i <= argsCount; i++) {
+    byte note = luaL_checkinteger(L, i);
+    chord |= 1 << (note % 12);
+  }
+
+  byte root;
+  byte mode;
+  bool didMatch = chordDetect.analyze(chord, root, mode);
+
+  lua->push(didMatch);
+
+  if (didMatch) {
+    lua->push(root);
+    lua->push(mode + 1); // one-based index
+    return 3;
+  } else {
+    return 1;
+  }
+}
+
 void install(LuaOnArduino *loa, MidiDevices *midiDevices) {
   LuaMidiLibrary::lua = &(loa->lua);
   LuaMidiLibrary::midiDevices = midiDevices;
 
   const luaL_reg library[] = {{"send", send}, {"_getNoteId", _getNoteId},
-      {"parseNoteId", parseNoteId}, {NULL, NULL}};
+      {"parseNoteId", parseNoteId}, {"analyzeChord", analyzeChord},
+      {NULL, NULL}};
   lua->registerLibrary("Midi", library);
 
   for (byte i = 0; i < MidiDevices::maxDevices; i++) {
