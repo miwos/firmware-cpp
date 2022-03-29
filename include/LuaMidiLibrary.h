@@ -61,15 +61,17 @@ int analyzeChord(lua_State *L) {
   }
 
   byte root;
-  byte mode;
-  bool didMatch = chordDetect.analyze(chord, root, mode);
+  byte quality;
+  byte add;
+  bool didMatch = chordDetect.analyze(chord, root, quality, add);
 
-  lua->push(didMatch);
+  lua_pushboolean(L, didMatch);
 
   if (didMatch) {
-    lua->push(root);
-    lua->push(mode + 1); // one-based index
-    return 3;
+    lua->push(root + 1);    // one-based index
+    lua->push(quality + 1); // one-based index
+    lua->push(add);
+    return 4;
   } else {
     return 1;
   }
