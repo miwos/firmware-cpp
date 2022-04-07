@@ -17,12 +17,16 @@ bool connected = false;
 int updateProp(lua_State *L) {
   byte instanceId = lua_tonumber(L, 1);
   const char *name = lua_tostring(L, 2);
-  float value = lua_tonumber(L, 3);
 
   OSCMessage message("/instances/prop");
   message.add(instanceId);
   message.add(name);
-  message.add(value);
+  if (lua_type(L, 3) == LUA_TSTRING) {
+    message.add(lua_tostring(L, 3));
+  } else {
+    message.add(lua_tonumber(L, 3));
+  }
+
   bridge->sendMessage(message);
   return 0;
 }
