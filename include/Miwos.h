@@ -106,7 +106,7 @@ void handleOscInput(OSCMessage &oscInput) {
 
   oscInput.dispatch("/parts/select", [](OSCMessage &message) {
     byte partIndex = message.getInt(0);
-    if (lua->getFunction("Interface", "selectPart")) {
+    if (lua->getFunction("Patches", "selectPart")) {
       // Use a one-based index to be consistent with lua.
       lua->push(partIndex + 1);
       lua->call(1, 0);
@@ -115,10 +115,11 @@ void handleOscInput(OSCMessage &oscInput) {
 
   oscInput.dispatch("/encoders/page", [](OSCMessage &message) {
     byte pageIndex = message.getInt(0);
-    if (lua->getFunction("Interface", "selectPage")) {
-      // Use a one-based index to be consistent with lua.
-      lua->push(pageIndex + 1);
-      lua->call(1, 0);
+    if (lua->getFunction("Views", "update")) {
+      lua->push("Patch");
+      lua->push("page");
+      lua->push(pageIndex + 1); // one-based index
+      lua->call(3, 0);
     }
   });
 }

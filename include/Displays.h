@@ -30,7 +30,6 @@ private:
   void initializeDisplay(Display *display) {
     display->clearDisplay();
     display->setFont(&Vevey_Positive12pt7b);
-    display->setCursor(0, 10);
     display->setTextColor(WHITE);
     // There was a bug, where we needed to print something to the serial after
     // using `display#setTextColor()`. This doesn't seem to be the case anymore
