@@ -4,8 +4,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <LuaOnArduino.h>
-// #include <fonts/Vevey_Positive20pt7b.h>
-#include <fonts/Vevey_Positive12pt7b.h>
+#include <fonts/vevey_pixel_12pt.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
@@ -29,7 +28,7 @@ private:
 
   void initializeDisplay(Display *display) {
     display->clearDisplay();
-    display->setFont(&Vevey_Positive12pt7b);
+    display->setFont(&vevey_pixel_12pt);
     display->setTextColor(WHITE);
     // There was a bug, where we needed to print something to the serial after
     // using `display#setTextColor()`. This doesn't seem to be the case anymore
