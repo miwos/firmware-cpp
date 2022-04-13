@@ -14,23 +14,6 @@ Bridge *bridge;
 Logger *logger;
 bool connected = false;
 
-int updateProp(lua_State *L) {
-  byte instanceId = lua_tonumber(L, 1);
-  const char *name = lua_tostring(L, 2);
-
-  OSCMessage message("/instances/prop");
-  message.add(instanceId);
-  message.add(name);
-  if (lua_type(L, 3) == LUA_TSTRING) {
-    message.add(lua_tostring(L, 3));
-  } else {
-    message.add(lua_tonumber(L, 3));
-  }
-
-  bridge->sendMessage(message);
-  return 0;
-}
-
 int _updateOutputs(lua_State *L) {
   OSCMessage message("/instances/outputs");
   message.add(lua_tostring(L, 1));
@@ -60,9 +43,8 @@ void install(LuaOnArduino *loa) {
   LuaInstancesLibrary::bridge = &(loa->bridge);
   LuaInstancesLibrary::logger = &(loa->logger);
 
-  const luaL_reg library[] = {{"updateProp", updateProp},
-      {"_updateOutputs", _updateOutputs}, {"updateInstance", updateInstance},
-      {NULL, NULL}};
+  const luaL_reg library[] = {{"_updateOutputs", _updateOutputs},
+      {"updateInstance", updateInstance}, {NULL, NULL}};
   lua->registerLibrary("Instances", library);
 }
 
