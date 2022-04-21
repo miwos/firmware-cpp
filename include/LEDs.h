@@ -7,13 +7,13 @@ class LEDs {
 public:
   static const byte ON = 255;
   static const byte OFF = 0;
-  static const byte maxLEDs = 9;
+  static const byte maxLEDs = 7;
 
 private:
   LuaOnArduino *loa;
   byte pwmResolution = 8;
   float pwmFrequency = 585937.5;
-  byte pins[maxLEDs] = {10, 11, 12, 14, 15, 22, 5, 6, 28};
+  byte pins[maxLEDs] = {9, 11, 27, 14, 30, 29, 0};
 
 public:
   LEDs(LuaOnArduino *loa) { this->loa = loa; }
