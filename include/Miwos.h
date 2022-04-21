@@ -148,6 +148,7 @@ void begin() {
   displays.begin();
   leds.begin();
   midiDevices.begin();
+  buttons.begin();
 }
 
 void update() {

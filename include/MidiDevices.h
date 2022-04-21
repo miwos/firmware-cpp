@@ -7,12 +7,13 @@
 #include <AnyMidiUsbHub.h>
 #include <LuaOnArduino.h>
 #include <MIDI.h>
+#include <SPI.h>
 #include <USBHost_t36.h>
 
 AnyMidiUsb midiDevice1(0);
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial5, serialMidi1);
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, serialMidi2);
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, serialMidi2);
 AnyMidiSerial midiDevice2(1, &serialMidi1);
 AnyMidiSerial midiDevice3(2, &serialMidi2);
 
