@@ -15,7 +15,10 @@ public:
     this->midi = midi;
   }
 
-  void begin() { midi->begin(MIDI_CHANNEL_OMNI); }
+  void begin() {
+    midi->begin(MIDI_CHANNEL_OMNI);
+    midi->turnThruOff();
+  }
 
   void update() {
     if (midi->read() && handleInput != NULL) {
