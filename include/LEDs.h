@@ -10,6 +10,21 @@ public:
   static const byte maxLEDs = 7;
 
 private:
+  struct LED {
+    byte pin;
+    bool pwm;
+  };
+
+  LED leds[maxLEDs] = {
+      {9, true},
+      {11, true},
+      {27, false},
+      {14, true},
+      {30, false},
+      {29, true},
+      {0, true},
+  };
+
   LuaOnArduino *loa;
   byte pwmResolution = 8;
   float pwmFrequency = 585937.5;
@@ -21,8 +36,9 @@ public:
   void begin() {
     analogWriteResolution(pwmResolution);
     for (byte i = 0; i < maxLEDs; i++) {
-      pinMode(pins[i], OUTPUT);
-      analogWriteFrequency(pins[i], pwmFrequency);
+      byte pin = leds[i].pin;
+      pinMode(pin, OUTPUT);
+      if (leds[i].pwm) analogWriteFrequency(pin, pwmFrequency);
     }
   }
 
@@ -34,7 +50,12 @@ public:
       loa->logger.logEnd();
       return;
     }
-    analogWrite(pins[index], intensity);
+    byte pin = leds[index].pin;
+    if (leds[index].pwm) {
+      analogWrite(pin, intensity);
+    } else {
+      digitalWrite(pin, intensity == 0 ? LOW : HIGH);
+    }
   }
 };
 
