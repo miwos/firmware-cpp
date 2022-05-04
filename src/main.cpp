@@ -6,7 +6,7 @@ extern unsigned long _heap_end;
 extern char *__brkval;
 
 void setup() {
-  // Serial.begin(9600);
+  Serial.begin(9600);
   while (!Serial) {
     ; // Wait for Serial.
   }
